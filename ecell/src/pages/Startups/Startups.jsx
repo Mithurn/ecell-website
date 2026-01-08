@@ -1,12 +1,49 @@
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import {
     DraggableCardBody,
     DraggableCardContainer,
 } from "../../components/ui/draggable-card";
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { Rocket, TrendingUp, Users } from "lucide-react";
+
+// Animated counting number component
+const AnimatedNumber = ({ value, prefix = "", suffix = "" }) => {
+    const ref = useRef(null);
+    const isInView = useInView(ref, { once: true });
+    const [displayValue, setDisplayValue] = useState(0);
+
+    // Extract numeric value (handles "10" from "₹10Cr+")
+    const numericValue = parseInt(value.replace(/\D/g, ""), 10) || 0;
+
+    useEffect(() => {
+        if (isInView && numericValue > 0) {
+            const duration = 2000;
+            const steps = 60;
+            const increment = numericValue / steps;
+            let current = 0;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= numericValue) {
+                    setDisplayValue(numericValue);
+                    clearInterval(timer);
+                } else {
+                    setDisplayValue(Math.floor(current));
+                }
+            }, duration / steps);
+
+            return () => clearInterval(timer);
+        }
+    }, [isInView, numericValue]);
+
+    return (
+        <span ref={ref} className="tabular-nums">
+            {prefix}{displayValue}{suffix}
+        </span>
+    );
+};
 
 const Startups = () => {
     const startups = [
@@ -172,7 +209,9 @@ const Startups = () => {
                             className="text-center p-10 bg-neutral-950 rounded-2xl border border-green-500/30 hover:border-green-500/60 transition-all group"
                         >
                             <Rocket className="w-16 h-16 mx-auto mb-4 text-green-400 group-hover:scale-110 transition-transform" />
-                            <h3 className="text-5xl font-bold text-green-400 mb-3 font-display">50+</h3>
+                            <h3 className="text-5xl font-bold text-green-400 mb-3 font-display">
+                                <AnimatedNumber value="50" suffix="+" />
+                            </h3>
                             <p className="text-neutral-300 text-lg">Startups Incubated</p>
                         </motion.div>
                         <motion.div
@@ -183,7 +222,9 @@ const Startups = () => {
                             className="text-center p-10 bg-neutral-950 rounded-2xl border border-green-500/30 hover:border-green-500/60 transition-all group"
                         >
                             <TrendingUp className="w-16 h-16 mx-auto mb-4 text-green-400 group-hover:scale-110 transition-transform" />
-                            <h3 className="text-5xl font-bold text-green-400 mb-3 font-display">₹10Cr+</h3>
+                            <h3 className="text-5xl font-bold text-green-400 mb-3 font-display">
+                                <AnimatedNumber value="10" prefix="₹" suffix="Cr+" />
+                            </h3>
                             <p className="text-neutral-300 text-lg">Funding Raised</p>
                         </motion.div>
                         <motion.div
@@ -194,7 +235,9 @@ const Startups = () => {
                             className="text-center p-10 bg-neutral-950 rounded-2xl border border-green-500/30 hover:border-green-500/60 transition-all group"
                         >
                             <Users className="w-16 h-16 mx-auto mb-4 text-green-400 group-hover:scale-110 transition-transform" />
-                            <h3 className="text-5xl font-bold text-green-400 mb-3 font-display">30+</h3>
+                            <h3 className="text-5xl font-bold text-green-400 mb-3 font-display">
+                                <AnimatedNumber value="30" suffix="+" />
+                            </h3>
                             <p className="text-neutral-300 text-lg">Active Ventures</p>
                         </motion.div>
                     </div>

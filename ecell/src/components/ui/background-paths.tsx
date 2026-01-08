@@ -1,7 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { ChevronDown, Play } from "lucide-react";
 
 function FloatingPaths({ position }: { position: number }) {
     const paths = Array.from({ length: 36 }, (_, i) => ({
@@ -47,12 +50,24 @@ function FloatingPaths({ position }: { position: number }) {
     );
 }
 
+// Rotating words for typing animation
+const rotatingWords = ["Innovate", "Build", "Scale", "Transform", "Launch"];
+
 export function BackgroundPaths({
-    title = "Background Paths",
+    title = "Entrepreneurship Cell SRMIST",
 }: {
     title?: string;
 }) {
     const words = title.split(" ");
+    const [currentWordIndex, setCurrentWordIndex] = useState(0);
+
+    // Rotate words every 2.5 seconds
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentWordIndex((prev) => (prev + 1) % rotatingWords.length);
+        }, 2500);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-black">
@@ -61,14 +76,23 @@ export function BackgroundPaths({
                 <FloatingPaths position={-1} />
             </div>
 
+            {/* Dark vignette to fade lines in center */}
+            <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                    background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0) 70%)"
+                }}
+            />
+
             <div className="relative z-10 container mx-auto px-4 md:px-6 text-center">
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 2 }}
-                    className="max-w-4xl mx-auto"
+                    className="max-w-5xl mx-auto"
                 >
-                    <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold mb-8 tracking-tighter font-display">
+                    {/* Main Title */}
+                    <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tighter font-display">
                         {words.map((word, wordIndex) => (
                             <span
                                 key={wordIndex}
@@ -97,32 +121,106 @@ export function BackgroundPaths({
                         ))}
                     </h1>
 
-                    <div
-                        className="inline-block group relative bg-gradient-to-b from-green-500/20 to-emerald-500/20 
-                        p-px rounded-2xl backdrop-blur-lg 
-                        overflow-hidden shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/40 transition-shadow duration-300"
+                    {/* Tagline */}
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5, duration: 0.8 }}
+                        className="text-xl md:text-2xl text-white/90 mb-4 max-w-2xl mx-auto font-medium"
                     >
-                        <Button
-                            variant="ghost"
-                            className="rounded-[1.15rem] px-8 py-6 text-lg font-semibold backdrop-blur-md 
-                            bg-green-600 hover:bg-green-700 
-                            text-white transition-all duration-300 
-                            group-hover:-translate-y-0.5 border-2 border-green-500
-                            hover:shadow-lg hover:shadow-green-600/50"
+                        Fostering Innovation & Entrepreneurship
+                    </motion.p>
+
+                    {/* Typing Animation - Rotating Words */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.7, duration: 0.8 }}
+                        className="text-2xl md:text-3xl font-semibold mb-10 text-center ml-10"
+                    >
+                        <span className="text-neutral-500">We help you </span>
+                        <span className="relative inline-block w-36 md:w-44 text-left">
+                            <AnimatePresence mode="wait">
+                                <motion.span
+                                    key={rotatingWords[currentWordIndex]}
+                                    initial={{ y: 40, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    exit={{ y: -40, opacity: 0 }}
+                                    transition={{ duration: 0.4, ease: "easeOut" }}
+                                    className="absolute left-0 text-green-400"
+                                >
+                                    {rotatingWords[currentWordIndex]}
+                                </motion.span>
+                            </AnimatePresence>
+                            <span className="invisible">{rotatingWords[0]}</span>
+                        </span>
+                    </motion.div>
+
+                    {/* CTA Buttons */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.9, duration: 0.8 }}
+                        className="flex flex-col sm:flex-row items-center justify-center gap-4"
+                    >
+                        {/* Primary CTA - With Glow */}
+                        <div
+                            className="relative group"
                         >
-                            <span className="opacity-90 group-hover:opacity-100 transition-opacity">
-                                Discover Excellence
-                            </span>
-                            <span
-                                className="ml-3 opacity-70 group-hover:opacity-100 group-hover:translate-x-1.5 
-                                transition-all duration-300"
+                            {/* Glow effect */}
+                            <div className="absolute -inset-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-100 transition-opacity duration-500 animate-pulse" />
+
+                            <Button
+                                asChild
+                                variant="ghost"
+                                className="relative rounded-xl px-8 py-6 text-lg font-semibold 
+                                bg-green-600 hover:bg-green-500 
+                                text-white transition-all duration-300 
+                                border-2 border-green-400
+                                shadow-[0_0_20px_rgba(34,197,94,0.5)] hover:shadow-[0_0_40px_rgba(34,197,94,0.8)]"
                             >
-                                →
-                            </span>
+                                <Link to="/about">
+                                    <span>Discover Excellence</span>
+                                    <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">
+                                        →
+                                    </span>
+                                </Link>
+                            </Button>
+                        </div>
+
+                        {/* Secondary CTA */}
+                        <Button
+                            asChild
+                            variant="ghost"
+                            className="rounded-xl px-8 py-6 text-lg font-semibold 
+                            bg-transparent hover:bg-green-500/10 
+                            text-white hover:text-white transition-all duration-300 
+                            border-2 border-neutral-700 hover:border-green-500/50"
+                        >
+                            <Link to="/events" className="flex items-center gap-2">
+                                <Play className="w-5 h-5" />
+                                <span>View Events</span>
+                            </Link>
                         </Button>
-                    </div>
+                    </motion.div>
                 </motion.div>
             </div>
+
+            {/* Scroll Indicator */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5, duration: 1 }}
+                className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+            >
+                <span className="text-sm text-neutral-500">Scroll to explore</span>
+                <motion.div
+                    animate={{ y: [0, 8, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                >
+                    <ChevronDown className="w-6 h-6 text-green-500" />
+                </motion.div>
+            </motion.div>
         </div>
     );
 }

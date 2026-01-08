@@ -79,18 +79,12 @@ const TestimonialsColumn = (props: {
     duration?: number;
 }) => {
     return (
-        <div className={props.className}>
-            <motion.ul
-                animate={{
-                    translateY: "-50%",
+        <div className={`group ${props.className || ''}`}>
+            <ul
+                className="flex flex-col gap-6 pb-6 bg-transparent list-none m-0 p-0 animate-scroll-vertical group-hover:[animation-play-state:paused]"
+                style={{
+                    animationDuration: `${props.duration || 10}s`,
                 }}
-                transition={{
-                    duration: props.duration || 10,
-                    repeat: Infinity,
-                    ease: "linear",
-                    repeatType: "loop",
-                }}
-                className="flex flex-col gap-6 pb-6 bg-transparent transition-colors duration-300 list-none m-0 p-0"
             >
                 {[
                     ...new Array(2).fill(0).map((_, index) => (
@@ -101,9 +95,8 @@ const TestimonialsColumn = (props: {
                                     whileHover={{
                                         scale: 1.03,
                                         y: -8,
-                                        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
                                     }}
-                                    className="p-8 rounded-3xl border border-green-500/20 shadow-lg shadow-black/5 max-w-xs w-full bg-neutral-900 transition-all duration-300 cursor-default select-none group"
+                                    className="p-8 rounded-3xl border border-green-500/20 shadow-lg shadow-black/5 max-w-xs w-full bg-neutral-900 transition-all duration-300 cursor-default select-none group hover:border-green-500/50 hover:shadow-[0_0_25px_rgba(34,197,94,0.15)]"
                                 >
                                     <blockquote className="m-0 p-0">
                                         <p className="text-neutral-300 leading-relaxed font-normal m-0 transition-colors duration-300">
@@ -132,7 +125,7 @@ const TestimonialsColumn = (props: {
                         </React.Fragment>
                     )),
                 ]}
-            </motion.ul>
+            </ul>
         </div>
     );
 };

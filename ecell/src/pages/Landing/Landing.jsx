@@ -1,5 +1,7 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
+import Footer from "../../components/Footer/Footer";
 import { BackgroundPaths } from "../../components/ui/background-paths";
 import { BentoGrid, BentoCard } from "../../components/ui/bento-grid";
 import { AnimatedTestimonials } from "../../components/ui/animated-testimonials";
@@ -8,9 +10,16 @@ import RadialOrbitalTimeline from "../../components/ui/radial-orbital-timeline";
 import { Code, Palette, Rocket, TrendingUp, Zap, Users, Globe, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import { TestimonialsV2 } from "../../components/ui/testimonial-v2";
+import { TextTicker } from "../../components/ui/marquee";
+import { StatsGrid } from "../../components/ui/stats-grid";
+import { InitiativesCarousel } from "../../components/ui/initiatives-carousel";
+import { DomainsShowcase } from "../../components/ui/domains-showcase";
+import { TeamShowcase } from "../../components/ui/team-showcase";
 
 const Landing = () => {
-  // Data for Bento Grid
+  const [selectedFeature, setSelectedFeature] = React.useState(null);
+
+  // Data for Bento Grid - Uniform 2x3 layout
   const features = [
     {
       Icon: Rocket,
@@ -19,7 +28,7 @@ const Landing = () => {
       href: "/startups",
       cta: "Learn more",
       background: <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-black to-black opacity-50" />,
-      className: "lg:row-start-1 lg:row-end-4 lg:col-start-2 lg:col-end-3",
+      className: "lg:col-span-1 lg:row-span-1",
     },
     {
       Icon: Users,
@@ -28,7 +37,7 @@ const Landing = () => {
       href: "/team",
       cta: "Meet mentors",
       background: <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-black to-black opacity-50" />,
-      className: "lg:col-start-1 lg:col-end-2 lg:row-start-1 lg:row-end-3",
+      className: "lg:col-span-1 lg:row-span-1",
     },
     {
       Icon: Globe,
@@ -37,7 +46,7 @@ const Landing = () => {
       href: "/events",
       cta: "Join events",
       background: <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 via-black to-black opacity-50" />,
-      className: "lg:col-start-1 lg:col-end-2 lg:row-start-3 lg:row-end-4",
+      className: "lg:col-span-1 lg:row-span-1",
     },
     {
       Icon: Award,
@@ -46,7 +55,7 @@ const Landing = () => {
       href: "/events",
       cta: "Compete now",
       background: <div className="absolute inset-0 bg-gradient-to-br from-green-600/10 via-black to-black opacity-50" />,
-      className: "lg:col-start-3 lg:col-end-3 lg:row-start-1 lg:row-end-2",
+      className: "lg:col-span-1 lg:row-span-1",
     },
     {
       Icon: Zap,
@@ -55,7 +64,16 @@ const Landing = () => {
       href: "/about",
       cta: "Explore skills",
       background: <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/10 via-black to-black opacity-50" />,
-      className: "lg:col-start-3 lg:col-end-3 lg:row-start-2 lg:row-end-4",
+      className: "lg:col-span-1 lg:row-span-1",
+    },
+    {
+      Icon: TrendingUp,
+      name: "Funding Support",
+      description: "Access seed funding, investor connections, and financial guidance for your venture.",
+      href: "/startups",
+      cta: "Get funded",
+      background: <div className="absolute inset-0 bg-gradient-to-br from-lime-500/10 via-black to-black opacity-50" />,
+      className: "lg:col-span-1 lg:row-span-1",
     },
   ];
 
@@ -142,7 +160,13 @@ const Landing = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <BackgroundPaths title="E-Cell SRMIST" />
+      <BackgroundPaths title="Entrepreneurship Cell SRMIST" />
+
+      {/* Scrolling Ticker */}
+      <TextTicker
+        texts={["E-Cell SRMIST", "Innovate", "Build", "Scale", "Transform Ideas", "Launch Startups"]}
+        className="bg-gradient-to-r from-black via-green-950/20 to-black"
+      />
 
       {/* Container Scroll Section */}
       <section className="bg-black">
@@ -173,46 +197,29 @@ const Landing = () => {
         </ContainerScroll>
       </section>
 
-      {/* What We Offer - Bento Grid */}
-      <section className="py-20 bg-black">
-        <div className="container mx-auto px-4">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-5xl font-bold text-white text-center mb-16 font-display"
-          >
-            What We <span className="text-green-500">Offer</span>
-          </motion.h2>
-          <BentoGrid className="lg:grid-rows-3">
-            {features.map((feature) => (
-              <BentoCard key={feature.name} {...feature} />
-            ))}
-          </BentoGrid>
-        </div>
-      </section>
+      {/* Stats Section */}
+      <StatsGrid
+        stats={[
+          { value: "16", label: "Startups Incubated", suffix: "+" },
+          { value: "50", label: "Events Conducted", suffix: "+" },
+          { value: "5000", label: "Students Impacted", suffix: "+" },
+          { value: "25", label: "Industry Partners", suffix: "+" },
+        ]}
+      />
 
-      {/* Our Domains - Radial Orbital Timeline */}
-      <section className="py-20 bg-gradient-to-b from-black to-neutral-950 border-y border-green-500/20">
-        <div className="container mx-auto px-4 text-center mb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-5xl font-bold text-white mb-4 font-display">
-              Our <span className="text-green-500">Domains</span>
-            </h2>
-            <p className="text-xl text-neutral-400">
-              Explore our core pillars of innovation
-            </p>
-          </motion.div>
-        </div>
+      {/* What We Offer - Carousel */}
+      <InitiativesCarousel
+        initiatives={features.map((f, index) => ({
+          id: index + 1,
+          Icon: f.Icon,
+          title: f.name,
+          description: f.description,
+          href: f.href,
+        }))}
+      />
 
-        <div className="h-[500px] md:h-[800px] w-full relative">
-          <RadialOrbitalTimeline timelineData={domains} />
-        </div>
-      </section>
+      {/* Our Domains - Animated Showcase */}
+      <DomainsShowcase />
 
       {/* Meet Our Core Team (Animated Testimonials) */}
       <section className="py-20 bg-black">
@@ -252,19 +259,83 @@ const Landing = () => {
           >
             Join the most vibrant student entrepreneurship community in India.
           </motion.p>
-          <motion.a
-            href="/recruitments"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-block px-12 py-6 bg-green-600 text-white text-xl font-bold rounded-full hover:bg-green-700 transition-all shadow-lg shadow-green-600/40 border-2 border-green-500"
-          >
-            Join E-Cell Now
-          </motion.a>
+          <Link to="/recruitments">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-block px-12 py-6 bg-green-600 text-white text-xl font-bold rounded-full hover:bg-green-700 transition-all shadow-lg shadow-green-600/40 border-2 border-green-500"
+            >
+              Join E-Cell Now
+            </motion.div>
+          </Link>
         </div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-green-900/20 via-black to-black -z-10" />
       </section>
+
+      <Footer />
+
+      <AnimPresence selectedFeature={selectedFeature} setSelectedFeature={setSelectedFeature} />
     </div>
   );
 };
+
+const AnimPresence = ({ selectedFeature, setSelectedFeature }) => {
+  return (
+    <motion.AnimatePresence>
+      {selectedFeature && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setSelectedFeature(null)}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-2xl bg-neutral-950 border border-green-500/20 rounded-2xl p-8 shadow-2xl relative"
+          >
+            <button
+              onClick={() => setSelectedFeature(null)}
+              className="absolute top-4 right-4 text-neutral-400 hover:text-white"
+            >
+              ✕
+            </button>
+            <selectedFeature.Icon className="w-12 h-12 text-green-500 mb-6" />
+            <h3 className="text-3xl font-bold text-white mb-4 font-display">
+              {selectedFeature.name}
+            </h3>
+            <p className="text-lg text-neutral-300 mb-8 leading-relaxed">
+              {selectedFeature.description}
+            </p>
+            <div className="bg-green-900/10 border border-green-500/10 rounded-xl p-6 mb-8">
+              <h4 className="text-green-400 font-semibold mb-2 flex items-center gap-2">
+                <Zap size={18} /> Why it matters
+              </h4>
+              <p className="text-neutral-400 text-sm">
+                This initiative is designed to empower students with the resources, connections, and skills required to navigate the modern entrepreneurial landscape. From ideation to execution, we cover every step of the journey.
+              </p>
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setSelectedFeature(null)}
+                className="px-4 py-2 text-neutral-400 hover:text-white"
+              >
+                Close
+              </button>
+              <Link to={selectedFeature.href}>
+                <button className="px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-colors">
+                  {selectedFeature.cta} →
+                </button>
+              </Link>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </motion.AnimatePresence>
+  );
+}
 
 export default Landing;

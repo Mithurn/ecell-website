@@ -18,31 +18,37 @@ const Footer = () => {
           <div className="grid grid-cols-2 gap-8">
             <div className="space-y-4">
               <h4 className="text-lg font-bold text-white font-display uppercase tracking-wider">Connect</h4>
-              <div className="flex flex-col space-y-2">
+              <div className="flex flex-wrap gap-3">
                 <a
                   href="mailto:ecell@srmist.edu.in"
-                  className="text-neutral-400 hover:text-green-400 transition-colors flex items-center gap-2 group"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900 border border-green-500/20 
+                    text-neutral-400 hover:text-white hover:border-green-500/60 hover:bg-green-500/10
+                    hover:shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-all duration-300 group"
                 >
-                  <Mail className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                  Email
+                  <Mail className="w-4 h-4 group-hover:text-green-400" />
+                  <span className="text-sm font-medium">Email</span>
                 </a>
                 <a
                   href="https://www.linkedin.com/company/e-cell-srmist"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-neutral-400 hover:text-green-400 transition-colors flex items-center gap-2 group"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900 border border-green-500/20 
+                    text-neutral-400 hover:text-white hover:border-green-500/60 hover:bg-green-500/10
+                    hover:shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-all duration-300 group"
                 >
-                  <Linkedin className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                  LinkedIn
+                  <Linkedin className="w-4 h-4 group-hover:text-green-400" />
+                  <span className="text-sm font-medium">LinkedIn</span>
                 </a>
                 <a
                   href="https://www.instagram.com/ecell_srmist"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-neutral-400 hover:text-green-400 transition-colors flex items-center gap-2 group"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900 border border-green-500/20 
+                    text-neutral-400 hover:text-white hover:border-green-500/60 hover:bg-green-500/10
+                    hover:shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-all duration-300 group"
                 >
-                  <Instagram className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                  Instagram
+                  <Instagram className="w-4 h-4 group-hover:text-green-400" />
+                  <span className="text-sm font-medium">Instagram</span>
                 </a>
               </div>
             </div>

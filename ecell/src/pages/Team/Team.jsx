@@ -11,26 +11,38 @@ const TeamMemberCard = ({ member, size = "md" }) => {
   const isLarge = size === "lg";
   return (
     <motion.div
-      whileHover={{ y: -10 }}
+      whileHover={{ y: -10, scale: 1.02 }}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`relative group bg-neutral-900 border border-green-500/20 rounded-2xl overflow-hidden ${isLarge ? 'max-w-md w-full' : 'w-full'}`}
+      className={`relative group bg-neutral-900 border border-green-500/20 rounded-2xl overflow-hidden 
+        ${isLarge ? 'max-w-md w-full' : 'w-full'}
+        hover:border-green-500/60 transition-all duration-300
+        shadow-[0_0_15px_rgba(34,197,94,0.05)] hover:shadow-[0_0_30px_rgba(34,197,94,0.2)]`}
     >
+      {/* Neon glow overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-5" />
+
       <div className={`relative ${isLarge ? 'h-96' : 'h-80'} overflow-hidden`}>
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10 opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
         <img
           src={member.image}
           alt={member.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
         />
       </div>
-      <div className="absolute bottom-0 left-0 right-0 p-6 z-20 bg-gradient-to-t from-black to-transparent pt-20">
+      <div className="absolute bottom-0 left-0 right-0 p-6 z-20 bg-gradient-to-t from-black via-black/90 to-transparent pt-20">
         <h3 className={`${isLarge ? 'text-3xl' : 'text-xl'} font-bold text-white mb-1 font-display`}>{member.name}</h3>
-        <p className="text-green-400 font-medium mb-3">{member.role}</p>
-        <div className="flex gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0">
-          <a href="#" className="text-white hover:text-green-400 transition-colors"><Linkedin size={20} /></a>
-          <a href="#" className="text-white hover:text-green-400 transition-colors"><Mail size={20} /></a>
-          <a href="#" className="text-white hover:text-green-400 transition-colors"><Instagram size={20} /></a>
+        <p className="text-green-400 font-medium mb-4">{member.role}</p>
+        <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
+          <a href="#" className="p-2 rounded-full bg-white/10 text-white hover:bg-green-500 hover:text-black transition-all duration-200">
+            <Linkedin size={18} />
+          </a>
+          <a href="#" className="p-2 rounded-full bg-white/10 text-white hover:bg-green-500 hover:text-black transition-all duration-200">
+            <Mail size={18} />
+          </a>
+          <a href="#" className="p-2 rounded-full bg-white/10 text-white hover:bg-green-500 hover:text-black transition-all duration-200">
+            <Instagram size={18} />
+          </a>
         </div>
       </div>
     </motion.div>
