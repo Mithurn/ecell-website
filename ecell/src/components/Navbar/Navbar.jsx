@@ -50,8 +50,8 @@ const Navbar = () => {
           <span className="text-2xl font-bold text-white font-display tracking-tight group-hover:-translate-y-0.5 transition-transform duration-300">
             e-cell
           </span>
-          <span className="text-sm font-light text-green-500 font-display tracking-widest uppercase group-hover:-translate-y-0.5 transition-transform duration-300">
-            srmist
+          <span className="text-sm font-medium text-green-500 font-display tracking-widest uppercase group-hover:-translate-y-0.5 transition-transform duration-300">
+            SRMIST
           </span>
         </Link>
 
