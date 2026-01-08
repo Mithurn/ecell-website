@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { ArrowRight, Link, Zap } from "lucide-react";
+import { ArrowRight, Link } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,11 +25,11 @@ export default function RadialOrbitalTimeline({
     timelineData,
 }: RadialOrbitalTimelineProps) {
     const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>({});
-    const [viewMode, setViewMode] = useState<"orbital">("orbital");
+    const [viewMode] = useState<"orbital">("orbital");
     const [rotationAngle, setRotationAngle] = useState<number>(0);
     const [autoRotate, setAutoRotate] = useState<boolean>(true);
     const [pulseEffect, setPulseEffect] = useState<Record<number, boolean>>({});
-    const [centerOffset, setCenterOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+    const [centerOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [activeNodeId, setActiveNodeId] = useState<number | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const orbitRef = useRef<HTMLDivElement>(null);
@@ -197,7 +197,7 @@ export default function RadialOrbitalTimeline({
                         return (
                             <div
                                 key={item.id}
-                                ref={(el) => (nodeRefs.current[item.id] = el)}
+                                ref={(el) => { nodeRefs.current[item.id] = el; }}
                                 className="absolute transition-all duration-700 cursor-pointer"
                                 style={nodeStyle}
                                 onClick={(e) => {
@@ -254,22 +254,6 @@ export default function RadialOrbitalTimeline({
                                         </CardHeader>
                                         <CardContent className="text-xs text-neutral-300">
                                             <p>{item.content}</p>
-
-                                            <div className="mt-4 pt-3 border-t border-green-500/10">
-                                                <div className="flex justify-between items-center text-xs mb-1">
-                                                    <span className="flex items-center text-neutral-400">
-                                                        <Zap size={10} className="mr-1 text-green-500" />
-                                                        Activity Level
-                                                    </span>
-                                                    <span className="font-mono text-green-400">{item.energy}%</span>
-                                                </div>
-                                                <div className="w-full h-1 bg-neutral-800 rounded-full overflow-hidden">
-                                                    <div
-                                                        className="h-full bg-gradient-to-r from-green-500 to-emerald-500"
-                                                        style={{ width: `${item.energy}%` }}
-                                                    ></div>
-                                                </div>
-                                            </div>
 
                                             {item.relatedIds.length > 0 && (
                                                 <div className="mt-4 pt-3 border-t border-green-500/10">

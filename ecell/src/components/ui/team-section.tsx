@@ -70,7 +70,7 @@ const AnimatedTeamSection = React.forwardRef<
             y: getCardState(i, members.length).y,
             rotate: getCardState(i, members.length).rotate,
             transition: {
-                type: "spring",
+                type: "spring" as const,
                 stiffness: 120,
                 damping: 12,
             },
