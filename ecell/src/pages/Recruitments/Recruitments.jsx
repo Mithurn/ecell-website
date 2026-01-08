@@ -123,7 +123,7 @@ const Recruitments = () => {
                       onChange={handleChange}
                       required
                       className="w-full px-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors"
-                      placeholder="John Doe"
+                      placeholder="Enter your name"
                     />
                   </div>
                   <div>
@@ -137,7 +137,7 @@ const Recruitments = () => {
                         onChange={handleChange}
                         required
                         className="w-full pl-12 pr-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors"
-                        placeholder="john@example.com"
+                        placeholder="Enter your SRM email ID"
                       />
                     </div>
                   </div>
@@ -152,7 +152,7 @@ const Recruitments = () => {
                         onChange={handleChange}
                         required
                         className="w-full pl-12 pr-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors"
-                        placeholder="+91 98765 43210"
+                        placeholder="Enter your mobile number"
                       />
                     </div>
                   </div>
