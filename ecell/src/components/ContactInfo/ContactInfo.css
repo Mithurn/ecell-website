@@ -1,0 +1,128 @@
+.contact-container {
+  width: 100%;
+  min-height: 60vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5rem 2rem;
+  background: #000000;
+  position: relative;
+}
+
+.contact-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+.contact-content {
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.contact-card {
+  background: transparent;
+  padding: 3rem 2rem;
+}
+
+.contact-header {
+  margin-bottom: 3rem;
+}
+
+.title-accent {
+  display: none;
+}
+
+.contact-title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 200;
+  color: rgb(34, 197, 94);
+  margin: 0;
+  letter-spacing: 0.05em;
+  text-transform: lowercase;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.contact-link,
+.contact-text {
+  font-size: 1rem;
+  font-weight: 300;
+  color: rgb(156 163 175);
+  text-decoration: none;
+  display: inline-block;
+  padding: 0.75rem 0;
+  transition: color 0.2s ease;
+}
+
+.contact-link:hover {
+  color: rgba(34, 197, 94,0.5);
+}
+
+.contact-text {
+  color: rgb(34, 197, 94);
+  font-weight: 300;
+}
+
+.social-section {
+  display: flex;
+  justify-content: center;
+  padding-top: 2rem;
+}
+
+.social-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.social-link {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: rgb(34, 197, 94);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.social-link:hover {
+  color: rgb(156 163 175);
+}
+
+@media (max-width: 768px) {
+  .contact-container {
+    padding: 3rem 1.5rem;
+    min-height: 50vh;
+  }
+
+  .contact-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .contact-title {
+    font-size: 2.5rem;
+  }
+
+  .contact-info {
+    gap: 0.875rem;
+  }
+
+  .social-links {
+    gap: 1.25rem;
+  }
+}
+

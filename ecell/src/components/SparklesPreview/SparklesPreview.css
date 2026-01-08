@@ -1,0 +1,32 @@
+.sparkles-preview {
+  /* Component container styles handled by Tailwind */
+}
+
+.science-gothic-title {
+  font-family: "Science Gothic", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings:
+    "slnt" 0,
+    "wdth" 100,
+    "CTRS" 0;
+}
+
+.hero-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.hero-text-ecell {
+  color: rgb(229, 231, 235);
+  letter-spacing: 0.08em;
+  font-weight: 300;
+}
+
+.hero-text-srmist {
+  color: rgb(156, 163, 175);
+  letter-spacing: 0.12em;
+  font-weight: 200;
+}
