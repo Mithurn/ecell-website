@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
@@ -32,33 +32,31 @@ interface InitiativesCarouselProps {
 export function InitiativesCarousel({ initiatives, className }: InitiativesCarouselProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
+    const total = initiatives.length;
 
     const nextSlide = useCallback(() => {
-        setCurrentIndex((prev) => (prev + 1) % initiatives.length);
-    }, [initiatives.length]);
+        setCurrentIndex((prev) => (prev + 1) % total);
+    }, [total]);
 
     const prevSlide = useCallback(() => {
-        setCurrentIndex((prev) => (prev - 1 + initiatives.length) % initiatives.length);
-    }, [initiatives.length]);
+        setCurrentIndex((prev) => (prev - 1 + total) % total);
+    }, [total]);
 
     // Auto-play
     useEffect(() => {
         if (isPaused) return;
-        const timer = setInterval(nextSlide, 4000);
+        const timer = setInterval(nextSlide, 5000);
         return () => clearInterval(timer);
     }, [isPaused, nextSlide]);
 
-    // Get visible cards (show 5 cards: 2 left, center, 2 right)
-    const getVisibleCards = () => {
-        const cards = [];
-        for (let i = -2; i <= 2; i++) {
-            const index = (currentIndex + i + initiatives.length) % initiatives.length;
-            cards.push({ ...initiatives[index], offset: i, originalIndex: index });
-        }
-        return cards;
+    // Calculate offset for each card relative to current
+    const getOffset = (index: number) => {
+        let offset = index - currentIndex;
+        // Handle wrap-around
+        if (offset > total / 2) offset -= total;
+        if (offset < -total / 2) offset += total;
+        return offset;
     };
-
-    const visibleCards = getVisibleCards();
 
     return (
         <section className={cn("py-20 bg-black relative overflow-hidden", className)}>
@@ -80,10 +78,9 @@ export function InitiativesCarousel({ initiatives, className }: InitiativesCarou
 
                 {/* Carousel Container */}
                 <div
-                    className="relative h-[450px] flex items-center justify-center perspective-1000"
+                    className="relative h-[420px] flex items-center justify-center"
                     onMouseEnter={() => setIsPaused(true)}
                     onMouseLeave={() => setIsPaused(false)}
-                    style={{ perspective: "1000px" }}
                 >
                     {/* Navigation Arrows */}
                     <button
@@ -101,34 +98,34 @@ export function InitiativesCarousel({ initiatives, className }: InitiativesCarou
                         <ChevronRight className="w-6 h-6" />
                     </button>
 
-                    {/* Cards */}
+                    {/* Cards - All mounted, position via CSS transforms */}
                     <div className="relative w-full max-w-6xl h-full flex items-center justify-center">
-                        {visibleCards.map((card) => {
-                            const isCenter = card.offset === 0;
-                            const isAdjacent = Math.abs(card.offset) === 1;
-                            const accent = accentColors[card.originalIndex % accentColors.length];
+                        {initiatives.map((card, index) => {
+                            const offset = getOffset(index);
+                            const isCenter = offset === 0;
+                            const isAdjacent = Math.abs(offset) === 1;
+                            const isVisible = Math.abs(offset) <= 2;
+                            const accent = accentColors[index % accentColors.length];
 
-                            // Calculate transforms - consistent spacing
-                            const xOffset = card.offset * 200; // Consistent gap between all cards
+                            // Calculate transforms
+                            const xOffset = offset * 200;
                             const scale = isCenter ? 1 : isAdjacent ? 0.9 : 0.8;
-                            const opacity = isCenter ? 1 : isAdjacent ? 0.7 : 0.5;
+                            const opacity = isVisible ? (isCenter ? 1 : isAdjacent ? 0.7 : 0.5) : 0;
+                            const zIndex = isCenter ? 30 : isAdjacent ? 20 : 10;
 
                             return (
-                                <motion.div
-                                    key={`${card.id}-${card.offset}`}
-                                    onClick={() => !isCenter && setCurrentIndex(card.originalIndex)}
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{
-                                        opacity,
-                                        scale,
-                                        x: xOffset,
-                                    }}
-                                    transition={{ duration: 0.4, ease: "easeOut" }}
+                                <div
+                                    key={card.id}
+                                    onClick={() => !isCenter && setCurrentIndex(index)}
                                     style={{
-                                        zIndex: isCenter ? 30 : isAdjacent ? 20 : 10,
+                                        transform: `translateX(${xOffset}px) scale(${scale})`,
+                                        opacity,
+                                        zIndex,
+                                        transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+                                        pointerEvents: isVisible ? "auto" : "none",
                                     }}
                                     className={cn(
-                                        "absolute w-64 md:w-72 h-80 p-6 rounded-xl bg-neutral-950/95 border-2 transition-all duration-300 flex flex-col",
+                                        "absolute w-64 md:w-72 h-80 p-6 rounded-xl bg-neutral-950/95 border-2 flex flex-col",
                                         isCenter ? `${accent.border} shadow-lg ${accent.glow}` : "border-neutral-800/50 cursor-pointer hover:border-neutral-700"
                                     )}
                                 >
@@ -178,7 +175,7 @@ export function InitiativesCarousel({ initiatives, className }: InitiativesCarou
                                             </div>
                                         )}
                                     </div>
-                                </motion.div>
+                                </div>
                             );
                         })}
                     </div>
