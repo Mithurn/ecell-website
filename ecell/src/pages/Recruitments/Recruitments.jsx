@@ -2,14 +2,17 @@ import React, { useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { motion } from "framer-motion";
-import { Upload, Send, User, Mail, Phone, Briefcase, FileText, Lightbulb, CheckCircle, Users, TrendingUp, Rocket } from "lucide-react";
+import { Upload, Send, User, Mail, Phone, Briefcase, FileText, Lightbulb, CheckCircle, Users, TrendingUp, Rocket, Hash, Loader2, AlertCircle, GraduationCap } from "lucide-react";
+import { submitApplication } from "../../services/recruitmentService";
 
 const Recruitments = () => {
+  // Form state with SRM default for college
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
-    college: "",
+    registrationNumber: "",
+    college: "SRM Institute of Science and Technology",
     year: "",
     domain: "",
     resume: null,
@@ -19,37 +22,62 @@ const Recruitments = () => {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+
+    // Name: only allow letters and spaces
+    if (name === "fullName") {
+      const sanitized = value.replace(/[^a-zA-Z\s]/g, '');
+      setFormData(prev => ({ ...prev, [name]: sanitized }));
+    }
+    // Phone: only allow numbers
+    else if (name === "phone") {
+      const sanitized = value.replace(/[^0-9]/g, '').slice(0, 10);
+      setFormData(prev => ({ ...prev, [name]: sanitized }));
+    }
+    // Registration number: auto uppercase
+    else if (name === "registrationNumber") {
+      setFormData(prev => ({ ...prev, [name]: value.toUpperCase() }));
+    }
+    else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+    setError("");
   };
 
   const handleFileChange = (e) => {
-    setFormData(prev => ({ ...prev, resume: e.target.files[0] }));
+    const file = e.target.files[0];
+    if (file && file.size > 5 * 1024 * 1024) {
+      setError("Resume file must be less than 5MB");
+      return;
+    }
+    setFormData(prev => ({ ...prev, resume: file }));
+    setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    setSubmitted(true);
+    setError("");
+    setIsLoading(true);
 
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({
-        fullName: "",
-        email: "",
-        phone: "",
-        college: "",
-        year: "",
-        domain: "",
-        resume: null,
-        ideaTitle: "",
-        ideaDescription: "",
-        teamMembers: "",
-      });
-    }, 3000);
+    try {
+      const result = await submitApplication(formData);
+
+      if (result.success) {
+        setSubmitted(true);
+        // Success screen stays - no auto-reset
+      } else {
+        setError(result.error || "Failed to submit application. Please try again.");
+      }
+    } catch (err) {
+      console.error("Submission error:", err);
+      setError("Something went wrong. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const domains = [
@@ -59,6 +87,14 @@ const Recruitments = () => {
     "Creatives & Design",
     "Content Writing",
     "Event Management",
+  ];
+
+  const years = [
+    { value: "1st Year", label: "1st Year", icon: "🎓" },
+    { value: "2nd Year", label: "2nd Year", icon: "📚" },
+    { value: "3rd Year", label: "3rd Year", icon: "💡" },
+    { value: "4th Year", label: "4th Year", icon: "🚀" },
+    { value: "Post Graduate", label: "PG", icon: "🎯" },
   ];
 
   return (
@@ -83,20 +119,18 @@ const Recruitments = () => {
         </div>
       </section>
 
-      {/* Main Form Section */}
+      {/* Form Section */}
       <section className="py-20 bg-black">
         <div className="container mx-auto px-4 max-w-4xl">
           {submitted ? (
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-gradient-to-br from-green-950/30 to-emerald-950/30 border-2 border-green-500 rounded-2xl p-12 text-center"
+              className="bg-neutral-950 border border-green-500 rounded-2xl p-12 text-center"
             >
-              <CheckCircle className="w-20 h-20 text-green-400 mx-auto mb-6" />
-              <h2 className="text-4xl font-bold text-white mb-4 font-display">
-                Application Submitted!
-              </h2>
-              <p className="text-xl text-neutral-300">
+              <CheckCircle className="w-24 h-24 text-green-500 mx-auto mb-6" />
+              <h2 className="text-4xl font-bold text-white mb-4 font-display">Application Submitted!</h2>
+              <p className="text-neutral-300 text-xl">
                 Thank you for your interest. We'll review your application and get back to you soon!
               </p>
             </motion.div>
@@ -107,6 +141,27 @@ const Recruitments = () => {
               onSubmit={handleSubmit}
               className="bg-neutral-950 border border-green-500/20 rounded-2xl p-8 md:p-12 space-y-8"
             >
+              {/* Error Message */}
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-red-500/10 border border-red-500/50 rounded-lg p-4"
+                >
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                    <div className="text-red-400">
+                      <p className="font-semibold mb-2">Please fix the following:</p>
+                      <ul className="space-y-1">
+                        {error.split(', ').map((err, idx) => (
+                          <li key={idx} className="text-sm">{err}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
               {/* Personal Information */}
               <div>
                 <h2 className="text-3xl font-bold text-green-400 mb-6 font-display flex items-center gap-3">
@@ -122,12 +177,30 @@ const Recruitments = () => {
                       value={formData.fullName}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors"
-                      placeholder="Enter your name"
+                      disabled={isLoading}
+                      className="w-full px-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors disabled:opacity-50"
+                      placeholder="Enter your full name"
                     />
                   </div>
                   <div>
-                    <label className="block text-neutral-300 mb-2 font-medium">Email *</label>
+                    <label className="block text-neutral-300 mb-2 font-medium">Registration Number *</label>
+                    <div className="relative">
+                      <Hash className="absolute left-3 top-3.5 w-5 h-5 text-green-500" />
+                      <input
+                        type="text"
+                        name="registrationNumber"
+                        value={formData.registrationNumber}
+                        onChange={handleChange}
+                        required
+                        maxLength={15}
+                        disabled={isLoading}
+                        className="w-full pl-12 pr-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors disabled:opacity-50 uppercase"
+                        placeholder="RA2311003012103"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-neutral-300 mb-2 font-medium">SRM Email *</label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3.5 w-5 h-5 text-green-500" />
                       <input
@@ -136,10 +209,12 @@ const Recruitments = () => {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="w-full pl-12 pr-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors"
-                        placeholder="Enter your SRM email ID"
+                        disabled={isLoading}
+                        className="w-full pl-12 pr-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors disabled:opacity-50"
+                        placeholder="example@srmist.edu.in"
                       />
                     </div>
+                    <p className="text-xs text-neutral-500 mt-1">Use your @srmist.edu.in email</p>
                   </div>
                   <div>
                     <label className="block text-neutral-300 mb-2 font-medium">Phone Number *</label>
@@ -151,8 +226,10 @@ const Recruitments = () => {
                         value={formData.phone}
                         onChange={handleChange}
                         required
-                        className="w-full pl-12 pr-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors"
-                        placeholder="Enter your mobile number"
+                        maxLength={10}
+                        disabled={isLoading}
+                        className="w-full pl-12 pr-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors disabled:opacity-50"
+                        placeholder="10 digit number"
                       />
                     </div>
                   </div>
@@ -164,28 +241,42 @@ const Recruitments = () => {
                       value={formData.college}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors"
+                      disabled={isLoading}
+                      className="w-full px-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors disabled:opacity-50"
                       placeholder="SRM Institute of Science and Technology"
                     />
                   </div>
+
+                  {/* Year of Study - Modern Styled Dropdown */}
                   <div>
                     <label className="block text-neutral-300 mb-2 font-medium">Year of Study *</label>
-                    <select
-                      name="year"
-                      value={formData.year}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors"
-                    >
-                      <option value="">Select Year</option>
-                      <option value="1">1st Year</option>
-                      <option value="2">2nd Year</option>
-                      <option value="3">3rd Year</option>
-                      <option value="4">4th Year</option>
-                      <option value="pg">Post Graduate</option>
-                    </select>
+                    <div className="relative">
+                      <GraduationCap className="absolute left-3 top-3.5 w-5 h-5 text-green-500" />
+                      <select
+                        name="year"
+                        value={formData.year}
+                        onChange={handleChange}
+                        required
+                        disabled={isLoading}
+                        className="w-full pl-12 pr-10 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors appearance-none disabled:opacity-50 cursor-pointer"
+                      >
+                        <option value="" disabled>Select your year</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                        <option value="Post Graduate">Post Graduate</option>
+                      </select>
+                      {/* Custom dropdown arrow */}
+                      <div className="absolute right-3 top-3.5 pointer-events-none">
+                        <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
-                  <div>
+
+                  <div className="md:col-span-2">
                     <label className="block text-neutral-300 mb-2 font-medium">Preferred Domain *</label>
                     <div className="relative">
                       <Briefcase className="absolute left-3 top-3.5 w-5 h-5 text-green-500" />
@@ -194,7 +285,8 @@ const Recruitments = () => {
                         value={formData.domain}
                         onChange={handleChange}
                         required
-                        className="w-full pl-12 pr-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors appearance-none"
+                        disabled={isLoading}
+                        className="w-full pl-12 pr-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors appearance-none disabled:opacity-50"
                       >
                         <option value="">Select Domain</option>
                         {domains.map((domain) => (
@@ -212,13 +304,14 @@ const Recruitments = () => {
                   <FileText className="w-8 h-8" />
                   Upload Your Resume
                 </h2>
-                <div className="border-2 border-dashed border-green-500/30 hover:border-green-500/60 rounded-lg p-8 text-center transition-colors group cursor-pointer">
+                <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors group cursor-pointer ${formData.resume ? 'border-green-500/60 bg-green-500/5' : 'border-green-500/30 hover:border-green-500/60'}`}>
                   <input
                     type="file"
                     id="resume"
                     name="resume"
                     accept=".pdf,.doc,.docx"
                     onChange={handleFileChange}
+                    disabled={isLoading}
                     className="hidden"
                   />
                   <label htmlFor="resume" className="cursor-pointer">
@@ -245,7 +338,8 @@ const Recruitments = () => {
                       name="ideaTitle"
                       value={formData.ideaTitle}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors"
+                      disabled={isLoading}
+                      className="w-full px-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors disabled:opacity-50"
                       placeholder="Your innovative startup idea name"
                     />
                   </div>
@@ -256,7 +350,8 @@ const Recruitments = () => {
                       value={formData.ideaDescription}
                       onChange={handleChange}
                       rows={6}
-                      className="w-full px-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors resize-none"
+                      disabled={isLoading}
+                      className="w-full px-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors resize-none disabled:opacity-50"
                       placeholder="Tell us about your startup idea, the problem it solves, and how you plan to execute it..."
                     />
                   </div>
@@ -267,7 +362,8 @@ const Recruitments = () => {
                       name="teamMembers"
                       value={formData.teamMembers}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors"
+                      disabled={isLoading}
+                      className="w-full px-4 py-3 bg-black border border-green-500/30 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors disabled:opacity-50"
                       placeholder="Names of your co-founders or team members"
                     />
                   </div>
@@ -277,12 +373,22 @@ const Recruitments = () => {
               {/* Submit Button */}
               <motion.button
                 type="submit"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full px-8 py-5 bg-green-600 text-white text-lg font-bold rounded-lg hover:bg-green-700 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-green-600/30 border-2 border-green-500"
+                whileHover={{ scale: isLoading ? 1 : 1.02 }}
+                whileTap={{ scale: isLoading ? 1 : 0.98 }}
+                disabled={isLoading}
+                className="w-full px-8 py-5 bg-green-600 text-white text-lg font-bold rounded-lg hover:bg-green-700 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-green-600/30 border-2 border-green-500 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Submit Application
-                <Send className="w-5 h-5" />
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    Submit Application
+                    <Send className="w-5 h-5" />
+                  </>
+                )}
               </motion.button>
             </motion.form>
           )}
