@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
-// Accent colors for each card (KIIT-style multi-color)
 const accentColors = [
     { border: "border-pink-500", bg: "bg-pink-500", text: "text-pink-400", glow: "shadow-pink-500/30" },
     { border: "border-cyan-500", bg: "bg-cyan-500", text: "text-cyan-400", glow: "shadow-cyan-500/30" },
@@ -32,6 +31,8 @@ interface InitiativesCarouselProps {
 export function InitiativesCarousel({ initiatives, className }: InitiativesCarouselProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
+    const dragStartX = useRef(0);
     const total = initiatives.length;
 
     const nextSlide = useCallback(() => {
@@ -44,18 +45,36 @@ export function InitiativesCarousel({ initiatives, className }: InitiativesCarou
 
     // Auto-play
     useEffect(() => {
-        if (isPaused) return;
+        if (isPaused || isDragging) return;
         const timer = setInterval(nextSlide, 5000);
         return () => clearInterval(timer);
-    }, [isPaused, nextSlide]);
+    }, [isPaused, isDragging, nextSlide]);
 
     // Calculate offset for each card relative to current
     const getOffset = (index: number) => {
         let offset = index - currentIndex;
-        // Handle wrap-around
         if (offset > total / 2) offset -= total;
         if (offset < -total / 2) offset += total;
         return offset;
+    };
+
+    // Drag handlers
+    const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+        setIsDragging(true);
+        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+        dragStartX.current = clientX;
+    };
+
+    const handleDragEnd = (e: React.MouseEvent | React.TouchEvent) => {
+        if (!isDragging) return;
+        const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
+        const diff = dragStartX.current - clientX;
+
+        if (Math.abs(diff) > 50) {
+            if (diff > 0) nextSlide();
+            else prevSlide();
+        }
+        setIsDragging(false);
     };
 
     return (
@@ -76,29 +95,17 @@ export function InitiativesCarousel({ initiatives, className }: InitiativesCarou
                     </p>
                 </motion.div>
 
-                {/* Carousel Container */}
+                {/* Carousel Container - Draggable */}
                 <div
-                    className="relative h-[420px] flex items-center justify-center"
+                    className="relative h-[420px] flex items-center justify-center cursor-grab active:cursor-grabbing select-none"
                     onMouseEnter={() => setIsPaused(true)}
-                    onMouseLeave={() => setIsPaused(false)}
+                    onMouseLeave={() => { setIsPaused(false); setIsDragging(false); }}
+                    onMouseDown={handleDragStart}
+                    onMouseUp={handleDragEnd}
+                    onTouchStart={handleDragStart}
+                    onTouchEnd={handleDragEnd}
                 >
-                    {/* Navigation Arrows */}
-                    <button
-                        onClick={prevSlide}
-                        className="absolute left-4 md:left-12 z-30 p-3 rounded-full bg-neutral-900/90 border border-white/10 text-white hover:bg-white/10 transition-all duration-300"
-                        aria-label="Previous"
-                    >
-                        <ChevronLeft className="w-6 h-6" />
-                    </button>
-                    <button
-                        onClick={nextSlide}
-                        className="absolute right-4 md:right-12 z-30 p-3 rounded-full bg-neutral-900/90 border border-white/10 text-white hover:bg-white/10 transition-all duration-300"
-                        aria-label="Next"
-                    >
-                        <ChevronRight className="w-6 h-6" />
-                    </button>
-
-                    {/* Cards - All mounted, position via CSS transforms */}
+                    {/* Cards - 3D Stacked effect */}
                     <div className="relative w-full max-w-6xl h-full flex items-center justify-center">
                         {initiatives.map((card, index) => {
                             const offset = getOffset(index);
@@ -107,7 +114,6 @@ export function InitiativesCarousel({ initiatives, className }: InitiativesCarou
                             const isVisible = Math.abs(offset) <= 2;
                             const accent = accentColors[index % accentColors.length];
 
-                            // Calculate transforms
                             const xOffset = offset * 200;
                             const scale = isCenter ? 1 : isAdjacent ? 0.9 : 0.8;
                             const opacity = isVisible ? (isCenter ? 1 : isAdjacent ? 0.7 : 0.5) : 0;
@@ -116,7 +122,7 @@ export function InitiativesCarousel({ initiatives, className }: InitiativesCarou
                             return (
                                 <div
                                     key={card.id}
-                                    onClick={() => !isCenter && setCurrentIndex(index)}
+                                    onClick={() => !isCenter && !isDragging && setCurrentIndex(index)}
                                     style={{
                                         transform: `translateX(${xOffset}px) scale(${scale})`,
                                         opacity,
@@ -129,10 +135,8 @@ export function InitiativesCarousel({ initiatives, className }: InitiativesCarou
                                         isCenter ? `${accent.border} shadow-lg ${accent.glow}` : "border-neutral-800/50 cursor-pointer hover:border-neutral-700"
                                     )}
                                 >
-                                    {/* Colored top bar */}
                                     <div className={cn("w-10 h-1 rounded-full mb-4", accent.bg)} />
 
-                                    {/* Card Number */}
                                     <div className={cn(
                                         "absolute top-4 right-4 text-3xl font-bold font-display",
                                         isCenter ? accent.text : "text-neutral-700"
@@ -140,7 +144,6 @@ export function InitiativesCarousel({ initiatives, className }: InitiativesCarou
                                         {String(card.id).padStart(2, "0")}.
                                     </div>
 
-                                    {/* Title */}
                                     <h3 className={cn(
                                         "text-lg font-bold mb-3 font-display leading-tight",
                                         isCenter ? "text-white" : "text-neutral-500"
@@ -148,7 +151,6 @@ export function InitiativesCarousel({ initiatives, className }: InitiativesCarou
                                         {card.title}
                                     </h3>
 
-                                    {/* Description */}
                                     <p className={cn(
                                         "text-sm leading-relaxed flex-grow",
                                         isCenter ? "text-neutral-400" : "text-neutral-600"
@@ -156,7 +158,6 @@ export function InitiativesCarousel({ initiatives, className }: InitiativesCarou
                                         {card.description}
                                     </p>
 
-                                    {/* CTA Button */}
                                     <div className="mt-4">
                                         {isCenter ? (
                                             <Link

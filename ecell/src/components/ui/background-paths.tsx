@@ -93,32 +93,35 @@ export function BackgroundPaths({
                 >
                     {/* Main Title */}
                     <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tighter font-display">
-                        {words.map((word, wordIndex) => (
-                            <span
-                                key={wordIndex}
-                                className="inline-block mr-4 last:mr-0"
-                            >
-                                {word.split("").map((letter, letterIndex) => (
-                                    <motion.span
-                                        key={`${wordIndex}-${letterIndex}`}
-                                        initial={{ y: 100, opacity: 0 }}
-                                        animate={{ y: 0, opacity: 1 }}
-                                        transition={{
-                                            delay:
-                                                wordIndex * 0.1 +
-                                                letterIndex * 0.03,
-                                            type: "spring",
-                                            stiffness: 150,
-                                            damping: 25,
-                                        }}
-                                        className="inline-block text-transparent bg-clip-text 
-                                        bg-gradient-to-r from-green-400 to-emerald-500"
-                                    >
-                                        {letter}
-                                    </motion.span>
-                                ))}
-                            </span>
-                        ))}
+                        {words.map((word, wordIndex) => {
+                            // Calculate cumulative letter count for proper timing
+                            const previousLetters = words.slice(0, wordIndex).reduce((acc, w) => acc + w.length, 0);
+
+                            return (
+                                <span
+                                    key={wordIndex}
+                                    className="inline-block mr-4 last:mr-0"
+                                >
+                                    {word.split("").map((letter, letterIndex) => (
+                                        <motion.span
+                                            key={`${wordIndex}-${letterIndex}`}
+                                            initial={{ y: 100, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{
+                                                delay: (previousLetters + letterIndex) * 0.03,
+                                                type: "spring",
+                                                stiffness: 150,
+                                                damping: 25,
+                                            }}
+                                            className="inline-block text-transparent bg-clip-text 
+                                            bg-gradient-to-r from-green-400 to-emerald-500"
+                                        >
+                                            {letter}
+                                        </motion.span>
+                                    ))}
+                                </span>
+                            );
+                        })}
                     </h1>
 
                     {/* Tagline */}

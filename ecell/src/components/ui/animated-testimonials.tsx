@@ -1,8 +1,7 @@
 "use client";
 
-import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 type Testimonial = {
@@ -22,6 +21,18 @@ export const AnimatedTestimonials = ({
   className?: string;
 }) => {
   const [active, setActive] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const dragStartX = useRef(0);
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Detect mobile
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleNext = () => {
     setActive((prev) => (prev + 1) % testimonials.length);
@@ -31,41 +42,81 @@ export const AnimatedTestimonials = ({
     setActive((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
-  const isActive = (index: number) => {
-    return index === active;
-  };
+  const isActive = (index: number) => index === active;
 
+  // Autoplay with pause support
   useEffect(() => {
-    if (autoplay) {
+    if (autoplay && !isPaused) {
       const interval = setInterval(handleNext, 5000);
       return () => clearInterval(interval);
     }
-  }, [autoplay]);
+  }, [autoplay, isPaused]);
 
-  const randomRotateY = () => {
-    return Math.floor(Math.random() * 21) - 10;
+  const getRotation = (index: number) => {
+    const rotations = [-8, 5, -3, 7, -5, 4, -6, 8];
+    return rotations[index % rotations.length];
+  };
+
+  // Mobile swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    dragStartX.current = e.touches[0].clientX;
+    // Start long press timer
+    longPressTimer.current = setTimeout(() => {
+      setIsPaused(true);
+    }, 500);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    // Clear long press timer
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+    setIsPaused(false);
+
+    const diff = dragStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) handleNext();
+      else handlePrev();
+    }
+  };
+
+  const handleTouchMove = () => {
+    // Cancel long press if user is swiping
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
   };
 
   return (
     <div className={cn("max-w-sm md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-20", className)}>
       <div className="relative grid grid-cols-1 md:grid-cols-2 gap-20">
-        <div>
+        {/* Image Stack */}
+        <div
+          onTouchStart={isMobile ? handleTouchStart : undefined}
+          onTouchEnd={isMobile ? handleTouchEnd : undefined}
+          onTouchMove={isMobile ? handleTouchMove : undefined}
+        >
           <div className="relative h-80 w-full">
             <AnimatePresence>
               {testimonials.map((testimonial, index) => (
                 <motion.div
                   key={testimonial.src}
+                  onClick={() => !isMobile && handleNext()}
+                  onMouseEnter={() => !isMobile && setIsPaused(true)}
+                  onMouseLeave={() => !isMobile && setIsPaused(false)}
                   initial={{
                     opacity: 0,
                     scale: 0.9,
                     z: -100,
-                    rotate: randomRotateY(),
+                    rotate: getRotation(index),
                   }}
                   animate={{
                     opacity: isActive(index) ? 1 : 0.7,
                     scale: isActive(index) ? 1 : 0.95,
                     z: isActive(index) ? 0 : -100,
-                    rotate: isActive(index) ? 0 : randomRotateY(),
+                    rotate: isActive(index) ? 0 : getRotation(index),
                     zIndex: isActive(index)
                       ? 999
                       : testimonials.length + 2 - index,
@@ -75,13 +126,16 @@ export const AnimatedTestimonials = ({
                     opacity: 0,
                     scale: 0.9,
                     z: 100,
-                    rotate: randomRotateY(),
+                    rotate: getRotation(index),
                   }}
                   transition={{
                     duration: 0.4,
                     ease: "easeInOut",
                   }}
-                  className="absolute inset-0 origin-bottom"
+                  className={cn(
+                    "absolute inset-0 origin-bottom",
+                    !isMobile && "cursor-pointer"
+                  )}
                 >
                   <img
                     src={testimonial.src}
@@ -93,26 +147,23 @@ export const AnimatedTestimonials = ({
               ))}
             </AnimatePresence>
           </div>
+
+          {/* Mobile hint */}
+          {isMobile && (
+            <p className="text-center text-neutral-600 text-xs mt-4">
+              Swipe to browse • Long press to pause
+            </p>
+          )}
         </div>
+
+        {/* Content */}
         <div className="flex justify-between flex-col py-4">
           <motion.div
             key={active}
-            initial={{
-              y: 20,
-              opacity: 0,
-            }}
-            animate={{
-              y: 0,
-              opacity: 1,
-            }}
-            exit={{
-              y: -20,
-              opacity: 0,
-            }}
-            transition={{
-              duration: 0.2,
-              ease: "easeInOut",
-            }}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -20, opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
           >
             <h3 className="text-2xl font-bold text-white font-display">
               {testimonials[active].name}
@@ -124,21 +175,9 @@ export const AnimatedTestimonials = ({
               {testimonials[active].quote.split(" ").map((word, index) => (
                 <motion.span
                   key={index}
-                  initial={{
-                    filter: "blur(10px)",
-                    opacity: 0,
-                    y: 5,
-                  }}
-                  animate={{
-                    filter: "blur(0px)",
-                    opacity: 1,
-                    y: 0,
-                  }}
-                  transition={{
-                    duration: 0.2,
-                    ease: "easeInOut",
-                    delay: 0.02 * index,
-                  }}
+                  initial={{ filter: "blur(10px)", opacity: 0, y: 5 }}
+                  animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, ease: "easeInOut", delay: 0.02 * index }}
                   className="inline-block"
                 >
                   {word}&nbsp;
@@ -146,19 +185,22 @@ export const AnimatedTestimonials = ({
               ))}
             </motion.p>
           </motion.div>
-          <div className="flex gap-4 pt-12 md:pt-0">
-            <button
-              onClick={handlePrev}
-              className="h-7 w-7 rounded-full bg-neutral-800 flex items-center justify-center group/button hover:bg-green-600 transition-colors"
-            >
-              <IconArrowLeft className="h-5 w-5 text-white group-hover/button:rotate-12 transition-transform duration-300" />
-            </button>
-            <button
-              onClick={handleNext}
-              className="h-7 w-7 rounded-full bg-neutral-800 flex items-center justify-center group/button hover:bg-green-600 transition-colors"
-            >
-              <IconArrowRight className="h-5 w-5 text-white group-hover/button:-rotate-12 transition-transform duration-300" />
-            </button>
+
+          {/* Dots indicator instead of arrows */}
+          <div className="flex gap-2 pt-8 md:pt-0">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setActive(index)}
+                className={cn(
+                  "w-2 h-2 rounded-full transition-all duration-300",
+                  index === active
+                    ? "w-6 bg-green-500"
+                    : "bg-neutral-700 hover:bg-neutral-600"
+                )}
+                aria-label={`View ${testimonials[index].name}`}
+              />
+            ))}
           </div>
         </div>
       </div>
