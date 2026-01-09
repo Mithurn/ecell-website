@@ -79,8 +79,6 @@ export function DomainsShowcase() {
         return () => clearInterval(timer);
     }, [isPaused, nextDomain, selectedDomain]);
 
-    const currentDomain = domains[currentIndex];
-
     return (
         <section className="py-20 bg-gradient-to-b from-neutral-950 to-black border-y border-green-500/20 relative overflow-hidden">
             <div className="container mx-auto px-4">
@@ -105,92 +103,70 @@ export function DomainsShowcase() {
                     onMouseEnter={() => setIsPaused(true)}
                     onMouseLeave={() => setIsPaused(false)}
                 >
-                    {/* Left Side - Domain Info (Animated) */}
-                    <div className="relative h-[400px]">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={currentDomain.id}
-                                initial={{ opacity: 0, x: -50 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 50 }}
-                                transition={{ duration: 0.5 }}
-                                className="absolute inset-0"
-                            >
-                                {/* Gradient background */}
-                                <div className={cn("absolute inset-0 bg-gradient-to-br rounded-3xl opacity-30", currentDomain.bgGradient)} />
+                    {/* Left Side - Domain Info (CSS Transitions - All mounted) */}
+                    <div className="relative h-[400px] overflow-hidden">
+                        {domains.map((domain, index) => {
+                            const isCurrent = index === currentIndex;
+                            const DomainIcon = domain.Icon;
 
-                                <div className="relative z-10 p-8 h-full flex flex-col justify-center">
-                                    {/* Domain number */}
-                                    <motion.span
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.1 }}
-                                        className="text-7xl font-bold text-white/10 font-display mb-4"
-                                    >
-                                        0{currentDomain.id}
-                                    </motion.span>
+                            return (
+                                <div
+                                    key={domain.id}
+                                    style={{
+                                        opacity: isCurrent ? 1 : 0,
+                                        transform: isCurrent ? "translateX(0)" : "translateX(-30px)",
+                                        transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+                                        pointerEvents: isCurrent ? "auto" : "none",
+                                    }}
+                                    className="absolute inset-0"
+                                >
+                                    {/* Gradient background */}
+                                    <div className={cn("absolute inset-0 bg-gradient-to-br rounded-3xl opacity-30", domain.bgGradient)} />
 
-                                    {/* Icon */}
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: 0.2 }}
-                                    >
-                                        <currentDomain.Icon className={cn("w-16 h-16 mb-6", currentDomain.color)} />
-                                    </motion.div>
+                                    <div className="relative z-10 p-8 h-full flex flex-col justify-center">
+                                        {/* Domain number */}
+                                        <span className="text-7xl font-bold text-white/10 font-display mb-4">
+                                            0{domain.id}
+                                        </span>
 
-                                    {/* Title */}
-                                    <motion.h3
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.3 }}
-                                        className="text-4xl font-bold text-white mb-2 font-display"
-                                    >
-                                        {currentDomain.title}
-                                    </motion.h3>
+                                        {/* Icon */}
+                                        <DomainIcon className={cn("w-16 h-16 mb-6", domain.color)} />
 
-                                    {/* Subtitle */}
-                                    <motion.p
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.4 }}
-                                        className={cn("text-lg mb-4", currentDomain.color)}
-                                    >
-                                        {currentDomain.subtitle}
-                                    </motion.p>
+                                        {/* Title */}
+                                        <h3 className="text-4xl font-bold text-white mb-2 font-display">
+                                            {domain.title}
+                                        </h3>
 
-                                    {/* Description */}
-                                    <motion.p
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.5 }}
-                                        className="text-neutral-400 text-lg"
-                                    >
-                                        {currentDomain.description}
-                                    </motion.p>
+                                        {/* Subtitle */}
+                                        <p className={cn("text-lg mb-4", domain.color)}>
+                                            {domain.subtitle}
+                                        </p>
 
-                                    {/* Learn More Button */}
-                                    <motion.button
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.6 }}
-                                        onClick={() => setSelectedDomain(currentDomain)}
-                                        className={cn(
-                                            "mt-6 px-6 py-3 rounded-full border-2 font-semibold transition-all duration-300 w-fit",
-                                            "border-green-500/50 text-green-400 hover:bg-green-500/10 hover:border-green-500"
-                                        )}
-                                    >
-                                        Learn More →
-                                    </motion.button>
+                                        {/* Description */}
+                                        <p className="text-neutral-400 text-lg">
+                                            {domain.description}
+                                        </p>
+
+                                        {/* Learn More Button */}
+                                        <button
+                                            onClick={() => setSelectedDomain(domain)}
+                                            className={cn(
+                                                "mt-6 px-6 py-3 rounded-full border-2 font-semibold transition-all duration-300 w-fit",
+                                                "border-green-500/50 text-green-400 hover:bg-green-500/10 hover:border-green-500"
+                                            )}
+                                        >
+                                            Learn More →
+                                        </button>
+                                    </div>
                                 </div>
-                            </motion.div>
-                        </AnimatePresence>
+                            );
+                        })}
                     </div>
 
                     {/* Right Side - Domain Cards */}
                     <div className="relative">
                         {/* Navigation Arrows */}
-                        <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-20">
+                        <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-20 hidden lg:flex">
                             <button
                                 onClick={prevDomain}
                                 className="p-2 rounded-full bg-neutral-900/80 border border-green-500/30 text-white hover:bg-green-500/20 transition-all"
@@ -205,32 +181,33 @@ export function DomainsShowcase() {
                             </button>
                         </div>
 
-                        {/* Cards Stack */}
+                        {/* Cards Stack - Using CSS transitions */}
                         <div className="flex flex-col gap-4">
                             {domains.map((domain, index) => {
                                 const isCurrent = index === currentIndex;
+                                const DomainIcon = domain.Icon;
+
                                 return (
-                                    <motion.div
+                                    <div
                                         key={domain.id}
                                         onClick={() => {
                                             setCurrentIndex(index);
                                             if (isCurrent) setSelectedDomain(domain);
                                         }}
-                                        animate={{
-                                            scale: isCurrent ? 1 : 0.95,
+                                        style={{
+                                            transform: isCurrent ? "scale(1)" : "scale(0.95)",
                                             opacity: isCurrent ? 1 : 0.5,
+                                            transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
                                         }}
-                                        whileHover={{ scale: isCurrent ? 1 : 0.98, opacity: 1 }}
-                                        transition={{ duration: 0.3 }}
                                         className={cn(
-                                            "p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 flex items-center gap-4",
+                                            "p-6 rounded-xl border-2 cursor-pointer flex items-center gap-4",
                                             "bg-neutral-950/80 backdrop-blur-sm",
                                             isCurrent
                                                 ? "border-green-500/60 shadow-lg shadow-green-500/10"
-                                                : "border-neutral-800/50 hover:border-neutral-700"
+                                                : "border-neutral-800/50 hover:border-neutral-700 hover:opacity-80"
                                         )}
                                     >
-                                        <domain.Icon className={cn("w-10 h-10", isCurrent ? domain.color : "text-neutral-600")} />
+                                        <DomainIcon className={cn("w-10 h-10", isCurrent ? domain.color : "text-neutral-600")} />
                                         <div>
                                             <h4 className={cn(
                                                 "text-lg font-bold font-display",
@@ -251,7 +228,7 @@ export function DomainsShowcase() {
                                         )}>
                                             0{domain.id}
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 );
                             })}
                         </div>
@@ -264,17 +241,15 @@ export function DomainsShowcase() {
                                     onClick={() => setCurrentIndex(index)}
                                     className="relative h-1 rounded-full overflow-hidden bg-neutral-800 w-12"
                                 >
-                                    {index === currentIndex && !isPaused && !selectedDomain && (
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{ width: "100%" }}
-                                            transition={{ duration: 5, ease: "linear" }}
-                                            className="absolute inset-0 bg-green-500"
-                                        />
-                                    )}
-                                    {index === currentIndex && (isPaused || selectedDomain) && (
-                                        <div className="absolute inset-0 bg-green-500" />
-                                    )}
+                                    <div
+                                        style={{
+                                            width: index === currentIndex ? "100%" : "0%",
+                                            transition: index === currentIndex && !isPaused && !selectedDomain
+                                                ? "width 5s linear"
+                                                : "width 0.3s ease-out",
+                                        }}
+                                        className="absolute inset-0 bg-green-500"
+                                    />
                                 </button>
                             ))}
                         </div>
