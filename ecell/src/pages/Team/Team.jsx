@@ -128,15 +128,15 @@ const MemberCard = ({ member, onClick }) => {
 const SectionHeader = ({ id, title, subtitle }) => (
   <motion.div
     id={id}
-    initial={{ opacity: 0, x: -20 }}
-    whileInView={{ opacity: 1, x: 0 }}
+    initial={{ opacity: 0, y: -20 }}
+    whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
-    className="mb-10 scroll-mt-32 text-center md:text-left"
+    className="mb-10 scroll-mt-32 text-center"
   >
     <h2 className="text-3xl font-bold text-white font-display">
       {title} <span className="text-green-500">{subtitle}</span>
     </h2>
-    <div className="w-16 h-1 bg-green-500 mt-3 rounded-full mx-auto md:mx-0" />
+    <div className="w-16 h-1 bg-green-500 mt-3 rounded-full mx-auto" />
   </motion.div>
 );
 
