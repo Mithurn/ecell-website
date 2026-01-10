@@ -41,7 +41,7 @@ const TeamCard = ({ member, variant = "default" }) => {
         ${sizeClasses[variant]} w-full
         hover:border-green-500/40 transition-all duration-300`}
     >
-      <div className={`relative ${variant === 'large' ? 'h-72' : variant === 'compact' ? 'h-48' : 'h-56'} overflow-hidden`}>
+      <div className={`relative ${variant === 'large' ? 'h-52 sm:h-72' : variant === 'compact' ? 'h-40 sm:h-48' : 'h-44 sm:h-56'} overflow-hidden`}>
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10 opacity-70" />
         <img
           src={member.image || member.photo || fallbackPhoto}
@@ -232,8 +232,8 @@ const Team = () => {
       <Navbar />
 
       {/* Sticky Footer Navigation - Centered Pill with Sliding Indicator */}
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-        <div className="flex items-center gap-1 bg-neutral-900/95 backdrop-blur-xl border border-neutral-800 rounded-full px-2 py-2 shadow-2xl">
+      <nav className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <div className="flex items-center gap-0.5 sm:gap-1 bg-neutral-900/95 backdrop-blur-xl border border-neutral-800 rounded-full px-1.5 sm:px-2 py-1.5 sm:py-2 shadow-2xl">
           {navSections.map((section) => (
             <button
               key={section.id}
@@ -241,7 +241,7 @@ const Team = () => {
                 document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth' });
                 setActiveSection(section.id);
               }}
-              className="relative px-5 py-2.5 text-sm font-medium rounded-full whitespace-nowrap"
+              className="relative px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-full whitespace-nowrap"
             >
               {/* Animated background for active state */}
               {activeSection === section.id && (
@@ -265,7 +265,7 @@ const Team = () => {
       </nav>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 pt-28 pb-32">
+      <div className="container mx-auto px-4 pt-24 sm:pt-28 pb-36 sm:pb-32">
 
         {/* Faculty Section */}
         <section className="mb-20">
@@ -299,14 +299,14 @@ const Team = () => {
             className="mb-10 scroll-mt-32"
           >
             {/* Domain Tabs Inline */}
-            <div className="flex flex-wrap items-center gap-6">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6">
               {domains.map((domain, idx) => (
                 <button
                   key={domain}
                   onClick={() => setActiveDomain(domain)}
-                  className={`text-2xl md:text-3xl font-bold font-display transition-all pb-2 border-b-2 ${activeDomain === domain
-                    ? 'text-white border-green-500'
-                    : 'text-neutral-600 hover:text-neutral-400 border-transparent'
+                  className={`text-lg sm:text-2xl md:text-3xl font-bold font-display transition-all pb-2 border-b-2 ${activeDomain === domain
+                      ? 'text-white border-green-500'
+                      : 'text-neutral-600 hover:text-neutral-400 border-transparent'
                     }`}
                 >
                   {domain}
@@ -357,10 +357,10 @@ const Team = () => {
         )}
       </div>
 
-      {/* Floating Upload Photo Button */}
+      {/* Floating Upload Photo Button - positioned above nav on mobile */}
       <Link
         to="/update-photo"
-        className="fixed bottom-6 right-6 flex items-center gap-2 px-5 py-3 bg-green-500 text-black font-bold rounded-full shadow-lg hover:bg-green-400 transition-all hover:scale-105 z-50"
+        className="fixed bottom-24 sm:bottom-6 right-4 sm:right-6 p-3 sm:px-5 sm:py-3 bg-green-500 text-black font-bold rounded-full shadow-lg hover:bg-green-400 transition-all hover:scale-105 z-40 flex items-center gap-2"
       >
         <Camera className="w-5 h-5" />
         <span className="hidden sm:inline">Update Photo</span>
