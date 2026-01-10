@@ -55,8 +55,10 @@ const rotatingWords = ["Innovate", "Build", "Scale", "Transform", "Launch"];
 
 export function BackgroundPaths({
     title = "Entrepreneurship Cell SRMIST",
+    topContent,
 }: {
     title?: string;
+    topContent?: React.ReactNode;
 }) {
     const words = title.split(" ");
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -91,6 +93,12 @@ export function BackgroundPaths({
                     transition={{ duration: 2 }}
                     className="max-w-5xl mx-auto"
                 >
+                    {topContent && (
+                        <div className="mb-8 flex justify-center">
+                            {topContent}
+                        </div>
+                    )}
+
                     {/* Main Title */}
                     <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tighter font-display">
                         {words.map((word, wordIndex) => {

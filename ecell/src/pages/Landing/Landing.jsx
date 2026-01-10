@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import confetti from "canvas-confetti";
+
 import { Link } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
@@ -16,8 +18,96 @@ import { InitiativesCarousel } from "../../components/ui/initiatives-carousel";
 import { DomainsShowcase } from "../../components/ui/domains-showcase";
 import { TeamShowcase } from "../../components/ui/team-showcase";
 
+const HeroTimer = () => {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const targetDate = new Date("2026-03-20T00:00:00").getTime();
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const difference = targetDate - now;
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((difference % (1000 * 60)) / 1000),
+        });
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ y: -50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 1, ease: "easeOut" }}
+      className="flex flex-col items-center"
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-xl md:text-2xl font-bold font-display text-white tracking-widest uppercase">E-SUMMIT</span>
+        <span className="text-xl md:text-2xl font-bold font-mono text-green-500">2026</span>
+      </div>
+      <div className="flex gap-4 text-xs md:text-sm font-mono text-neutral-400">
+        <div className="flex flex-col items-center">
+          <span className="text-lg md:text-xl text-white font-bold">{String(timeLeft.days).padStart(2, '0')}</span>
+          <span>DAYS</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <span className="text-lg md:text-xl text-white font-bold">{String(timeLeft.hours).padStart(2, '0')}</span>
+          <span>HRS</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <span className="text-lg md:text-xl text-white font-bold">{String(timeLeft.minutes).padStart(2, '0')}</span>
+          <span>MIN</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <span className="text-lg md:text-xl text-white font-bold">{String(timeLeft.seconds).padStart(2, '0')}</span>
+          <span>SEC</span>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 const Landing = () => {
-  const [selectedFeature, setSelectedFeature] = React.useState(null);
+  const [selectedFeature, setSelectedFeature] = useState(null);
+
+  // Festive Confetti Effect on Mount - CRAZY MODE
+  useEffect(() => {
+    const end = Date.now() + 3 * 1000;
+    const colors = ["#22c55e", "#ffffff", "#000000", "#4ade80"];
+
+    (function frame() {
+      confetti({
+        particleCount: 5,
+        angle: 60,
+        spread: 100,
+        origin: { x: 0 },
+        colors: colors,
+        zIndex: 9999,
+        scalar: 1.2,
+        drift: 0.5
+      });
+      confetti({
+        particleCount: 5,
+        angle: 120,
+        spread: 100,
+        origin: { x: 1 },
+        colors: colors,
+        zIndex: 9999,
+        scalar: 1.2,
+        drift: -0.5
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    }());
+  }, []);
+
+
 
   // Data for Bento Grid - Uniform 2x3 layout
   const features = [
@@ -159,14 +249,19 @@ const Landing = () => {
     <div className="min-h-screen bg-black">
       <Navbar />
 
-      {/* Hero Section */}
-      <BackgroundPaths title="Entrepreneurship Cell SRMIST" />
+      {/* Hero Section with Small Timer */}
+      <BackgroundPaths
+        title="Entrepreneurship Cell SRMIST"
+        topContent={<HeroTimer />}
+      />
 
       {/* Scrolling Ticker */}
       <TextTicker
         texts={["E-Cell SRMIST", "Innovate", "Build", "Scale", "Transform Ideas", "Launch Startups"]}
         className="bg-gradient-to-r from-black via-green-950/20 to-black"
       />
+
+
 
       {/* Container Scroll Section */}
       <section className="bg-black">
@@ -337,5 +432,7 @@ const AnimPresence = ({ selectedFeature, setSelectedFeature }) => {
     </motion.AnimatePresence>
   );
 }
+
+
 
 export default Landing;

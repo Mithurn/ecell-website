@@ -144,7 +144,7 @@ const UpdatePhoto = () => {
                         {/* Email Input */}
                         <div>
                             <label className="block text-sm font-medium text-neutral-300 mb-2">
-                                Your Email (same as in the form)
+                                Email (same as in the form)
                             </label>
                             <div className="relative">
                                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
@@ -152,7 +152,7 @@ const UpdatePhoto = () => {
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="your.email@srmist.edu.in"
+                                    placeholder="email@srmist.edu.in"
                                     className="w-full pl-12 pr-4 py-4 bg-neutral-900 border border-neutral-800 rounded-xl text-white placeholder-neutral-500 focus:border-green-500 focus:outline-none transition-colors"
                                 />
                             </div>
