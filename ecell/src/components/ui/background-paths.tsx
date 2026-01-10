@@ -99,8 +99,8 @@ export function BackgroundPaths({
                         </div>
                     )}
 
-                    {/* Main Title */}
-                    <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tighter font-display">
+                    {/* Main Title with Shimmer Effect */}
+                    <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tighter font-display relative">
                         {words.map((word, wordIndex) => {
                             // Calculate cumulative letter count for proper timing
                             const previousLetters = words.slice(0, wordIndex).reduce((acc, w) => acc + w.length, 0);
@@ -122,7 +122,7 @@ export function BackgroundPaths({
                                                 damping: 25,
                                             }}
                                             className="inline-block text-transparent bg-clip-text 
-                                            bg-gradient-to-r from-green-400 to-emerald-500"
+                                            bg-gradient-to-r from-green-400 via-emerald-300 to-green-500"
                                         >
                                             {letter}
                                         </motion.span>
@@ -130,6 +130,22 @@ export function BackgroundPaths({
                                 </span>
                             );
                         })}
+                        {/* Animated Shimmer Overlay */}
+                        <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"
+                            initial={{ x: '-100%' }}
+                            animate={{ x: '200%' }}
+                            transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                repeatDelay: 4,
+                                ease: "easeInOut"
+                            }}
+                            style={{
+                                WebkitBackgroundClip: 'text',
+                                mixBlendMode: 'overlay'
+                            }}
+                        />
                     </h1>
 
                     {/* Tagline */}
@@ -224,7 +240,6 @@ export function BackgroundPaths({
                 transition={{ delay: 1.5, duration: 1 }}
                 className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
             >
-                <span className="text-sm text-neutral-500">Scroll to explore</span>
                 <motion.div
                     animate={{ y: [0, 8, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
