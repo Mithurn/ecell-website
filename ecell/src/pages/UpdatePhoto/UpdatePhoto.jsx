@@ -1,9 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import { motion } from 'framer-motion';
 import { Upload, Check, AlertCircle, Camera, User } from 'lucide-react';
 import { uploadMemberPhoto } from '../../services/memberPhotoService';
+import { fetchTeamMembers } from '../../services/teamService';
 
 const UpdatePhoto = () => {
     const [email, setEmail] = useState('');
@@ -12,6 +13,23 @@ const UpdatePhoto = () => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
+    const [validEmails, setValidEmails] = useState(new Set());
+    const [verifying, setVerifying] = useState(true);
+
+    useEffect(() => {
+        const loadEmails = async () => {
+            try {
+                const members = await fetchTeamMembers();
+                const emails = new Set(members.map(m => m.email.toLowerCase()));
+                setValidEmails(emails);
+            } catch (err) {
+                console.error("Failed to load team list", err);
+            } finally {
+                setVerifying(false);
+            }
+        };
+        loadEmails();
+    }, []);
     const fileInputRef = useRef(null);
 
     const handleFileChange = (e) => {
@@ -41,6 +59,12 @@ const UpdatePhoto = () => {
         }
         if (!email.includes('@')) {
             setError('Please enter a valid email');
+            return;
+        }
+
+        // Email existence check
+        if (!validEmails.has(email.toLowerCase().trim())) {
+            setError('Email not found in team list. Please use the exact email from the registration form.');
             return;
         }
         if (!file) {
