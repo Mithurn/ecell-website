@@ -21,7 +21,7 @@ const CORE_TEAM_POSITIONS = ['founder', 'president', 'vice president', 'secretar
 const LEADERSHIP_POSITIONS = ['head', 'lead', 'syndicate'];
 
 // Reusable card component with size variants
-const TeamCard = ({ member, variant = "default" }) => {
+const TeamCard = ({ member, variant = "default", className = "" }) => {
   const fallbackPhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&size=400&background=22c55e&color=000&bold=true`;
 
   const sizeClasses = {
@@ -38,7 +38,7 @@ const TeamCard = ({ member, variant = "default" }) => {
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
       className={`group bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden 
-        ${sizeClasses[variant]} w-full flex flex-col items-center text-center pt-8 pb-6 mx-auto
+        ${sizeClasses[variant]} w-full flex flex-col items-center text-center pt-8 pb-6 mx-auto ${className}
         hover:border-green-500/40 transition-all duration-300`}
     >
       <div className={`relative ${variant === 'large' ? 'w-48 h-48' : variant === 'compact' ? 'w-24 h-24' : 'w-32 h-32'} rounded-full overflow-hidden border-4 border-neutral-800 group-hover:border-green-500/50 transition-colors duration-300 shadow-lg`}>
@@ -129,12 +129,12 @@ const SectionHeader = ({ id, title, subtitle }) => (
     initial={{ opacity: 0, x: -20 }}
     whileInView={{ opacity: 1, x: 0 }}
     viewport={{ once: true }}
-    className="mb-10 scroll-mt-32"
+    className="mb-10 scroll-mt-32 text-center md:text-left"
   >
     <h2 className="text-3xl font-bold text-white font-display">
       {title} <span className="text-green-500">{subtitle}</span>
     </h2>
-    <div className="w-16 h-1 bg-green-500 mt-3 rounded-full" />
+    <div className="w-16 h-1 bg-green-500 mt-3 rounded-full mx-auto md:mx-0" />
   </motion.div>
 );
 
@@ -283,8 +283,8 @@ const Team = () => {
         {/* Faculty Section */}
         <section className="mb-20">
           <SectionHeader id="faculty" title="Faculty" subtitle="Incharge" />
-          <div className="flex justify-center lg:justify-start">
-            <TeamCard member={facultyData} variant="large" />
+          <div className="flex justify-start">
+            <TeamCard member={facultyData} variant="large" className="md:mx-0" />
           </div>
         </section>
 
