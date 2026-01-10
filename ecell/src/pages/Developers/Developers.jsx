@@ -13,12 +13,13 @@ const DEV_NAMES = [
     "Mithurn"  // Matches "Mithurn Jeromme"
 ];
 
-// Matrix Code Rain Component
-const MatrixRain = () => {
+// Matrix Code Rain Component - Memoized to prevent re-renders
+const MatrixRain = React.memo(() => {
     const canvasRef = useRef(null);
 
     useEffect(() => {
         const canvas = canvasRef.current;
+        if (!canvas) return;
         const ctx = canvas.getContext('2d');
 
         canvas.width = canvas.offsetWidth;
@@ -52,7 +53,7 @@ const MatrixRain = () => {
     }, []);
 
     return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-0 group-hover:opacity-20 transition-opacity duration-700" />;
-};
+});
 
 // Typewriter Hook
 const useTypewriter = (text, speed = 100) => {
@@ -115,8 +116,8 @@ const DevCard = ({ dev, index }) => {
             ref={cardRef}
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.2, duration: 0.6 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ delay: index * 0.15, duration: 0.5 }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             style={{
