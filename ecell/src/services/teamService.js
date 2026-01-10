@@ -33,6 +33,15 @@ export const fetchTeamMembers = async () => {
             const supabasePhoto = memberPhotos[email];
             const fallbackPhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=400&background=22c55e&color=000&bold=true`;
 
+            let position = row[8] || 'Member';
+
+            // Data Normalization Fixes
+            if (name.toLowerCase() === 'aadi sharma') {
+                position = 'Member';
+            } else if (position === 'Lead, Member') {
+                position = 'Member';
+            }
+
             return {
                 id: index + 1,
                 name,
@@ -43,7 +52,7 @@ export const fetchTeamMembers = async () => {
                 instagram: row[5] || '',
                 email,
                 domain: row[7] || '',
-                position: row[8] || 'Member',
+                position,
             };
         }).filter(member => member.name);
 

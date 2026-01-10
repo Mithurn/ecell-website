@@ -22,7 +22,7 @@ const HeroTimer = () => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    const targetDate = new Date("2026-03-20T00:00:00").getTime();
+    const targetDate = new Date("2026-02-04T08:00:00").getTime();
     const interval = setInterval(() => {
       const now = new Date().getTime();
       const difference = targetDate - now;
@@ -75,7 +75,15 @@ const Landing = () => {
   const [selectedFeature, setSelectedFeature] = useState(null);
 
   // Festive Confetti Effect on Mount - CRAZY MODE
+  // Festive Confetti Effect on Mount - CRAZY MODE
   useEffect(() => {
+    // Check if confetti has already been shown in this session
+    const hasShownConfetti = sessionStorage.getItem("hasShownConfetti");
+    if (hasShownConfetti) return;
+
+    // Set flag in session storage
+    sessionStorage.setItem("hasShownConfetti", "true");
+
     const end = Date.now() + 3 * 1000;
     const colors = ["#22c55e", "#ffffff", "#000000", "#4ade80"];
 

@@ -18,7 +18,7 @@ const facultyData = {
 
 // Core Team positions to filter from sheets
 const CORE_TEAM_POSITIONS = ['founder', 'president', 'vice president', 'secretary', 'treasurer', 'core'];
-const HEAD_POSITIONS = ['head', 'lead'];
+const LEADERSHIP_POSITIONS = ['head', 'lead', 'syndicate'];
 
 // Reusable card component with size variants
 const TeamCard = ({ member, variant = "default" }) => {
@@ -38,11 +38,10 @@ const TeamCard = ({ member, variant = "default" }) => {
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
       className={`group bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden 
-        ${sizeClasses[variant]} w-full
+        ${sizeClasses[variant]} w-full flex flex-col items-center text-center pt-8 pb-6
         hover:border-green-500/40 transition-all duration-300`}
     >
-      <div className={`relative ${variant === 'large' ? 'h-52 sm:h-72' : variant === 'compact' ? 'h-40 sm:h-48' : 'h-44 sm:h-56'} overflow-hidden`}>
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10 opacity-70" />
+      <div className={`relative ${variant === 'large' ? 'w-48 h-48' : variant === 'compact' ? 'w-24 h-24' : 'w-32 h-32'} rounded-full overflow-hidden border-4 border-neutral-800 group-hover:border-green-500/50 transition-colors duration-300 shadow-lg`}>
         <img
           src={member.image || member.photo || fallbackPhoto}
           alt={member.name}
@@ -50,28 +49,28 @@ const TeamCard = ({ member, variant = "default" }) => {
           onError={(e) => { e.target.src = fallbackPhoto; }}
         />
       </div>
-      <div className="p-5">
-        <h3 className={`font-bold text-white mb-1 ${variant === 'large' ? 'text-xl' : 'text-lg'}`}>
+      <div className="px-5 pt-4 w-full flex flex-col items-center">
+        <h3 className={`font-bold text-white mb-1 ${variant === 'large' ? 'text-2xl' : 'text-xl'}`}>
           {member.name}
         </h3>
-        <p className="text-green-400 text-sm mb-3">{member.role || member.position}</p>
-        <div className="flex gap-2">
+        <p className="text-green-400 font-medium text-sm mb-4">{member.role || member.position}</p>
+        <div className="flex justify-center gap-3">
           {member.linkedin && (
             <a href={member.linkedin} target="_blank" rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-neutral-800 text-neutral-400 hover:bg-green-500 hover:text-black transition-all">
-              <Linkedin size={16} />
+              className="p-2 rounded-full bg-neutral-800 text-neutral-400 hover:bg-green-500 hover:text-black transition-all">
+              <Linkedin size={18} />
             </a>
           )}
           {member.instagram && (
             <a href={member.instagram} target="_blank" rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-neutral-800 text-neutral-400 hover:bg-green-500 hover:text-black transition-all">
-              <Instagram size={16} />
+              className="p-2 rounded-full bg-neutral-800 text-neutral-400 hover:bg-green-500 hover:text-black transition-all">
+              <Instagram size={18} />
             </a>
           )}
           {member.github && member.github !== 'NA' && (
             <a href={member.github} target="_blank" rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-neutral-800 text-neutral-400 hover:bg-green-500 hover:text-black transition-all">
-              <Github size={16} />
+              className="p-2 rounded-full bg-neutral-800 text-neutral-400 hover:bg-green-500 hover:text-black transition-all">
+              <Github size={18} />
             </a>
           )}
         </div>
@@ -200,9 +199,23 @@ const Team = () => {
     CORE_TEAM_POSITIONS.some(pos => m.position?.toLowerCase().includes(pos))
   );
 
-  const getHeadsByDomain = (domain) => allMembers.filter(m =>
-    m.domain === domain && HEAD_POSITIONS.some(pos => m.position?.toLowerCase().includes(pos))
-  );
+  const getLeadersByDomain = (domain) => {
+    const leaders = allMembers.filter(m =>
+      m.domain === domain && LEADERSHIP_POSITIONS.some(pos => m.position?.toLowerCase().includes(pos))
+    );
+
+    // Sort priority: Head > Syndicate > Lead
+    return leaders.sort((a, b) => {
+      const getPriority = (position) => {
+        const p = position?.toLowerCase() || '';
+        if (p.includes('head')) return 1;
+        if (p.includes('syndicate')) return 2;
+        if (p.includes('lead')) return 3;
+        return 4;
+      };
+      return getPriority(a.position) - getPriority(b.position);
+    });
+  };
 
   const getMembersByDomain = (domain) => allMembers.filter(m =>
     m.domain === domain && m.position?.toLowerCase() === 'member'
@@ -305,8 +318,8 @@ const Team = () => {
                   key={domain}
                   onClick={() => setActiveDomain(domain)}
                   className={`text-lg sm:text-2xl md:text-3xl font-bold font-display transition-all pb-2 border-b-2 ${activeDomain === domain
-                      ? 'text-white border-green-500'
-                      : 'text-neutral-600 hover:text-neutral-400 border-transparent'
+                    ? 'text-white border-green-500'
+                    : 'text-neutral-600 hover:text-neutral-400 border-transparent'
                     }`}
                 >
                   {domain}
@@ -325,10 +338,10 @@ const Team = () => {
                 exit={{ opacity: 0, x: -50 }}
                 transition={{ duration: 0.25, ease: "easeInOut" }}
               >
-                {/* Domain Heads */}
-                {getHeadsByDomain(activeDomain).length > 0 && (
+                {/* Domain Leaders (Heads, Syndicate, Leads) */}
+                {getLeadersByDomain(activeDomain).length > 0 && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-                    {getHeadsByDomain(activeDomain).map((member, idx) => (
+                    {getLeadersByDomain(activeDomain).map((member, idx) => (
                       <TeamCard key={idx} member={member} variant="default" />
                     ))}
                   </div>
