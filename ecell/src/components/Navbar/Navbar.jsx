@@ -38,6 +38,7 @@ const Navbar = () => {
     { path: '/events', label: 'Events' },
     { path: '/contact', label: 'Contact' },
     { path: '/recruitments', label: 'Join Now' },
+    { path: '/developers', label: 'Developers' },
   ];
 
   return (
@@ -52,7 +53,7 @@ const Navbar = () => {
           <img
             src="/ecell-logo-white.png"
             alt="E-Cell SRMIST"
-            className="h-12 w-auto object-contain group-hover:-translate-y-0.5 transition-transform duration-300"
+            className="h-14 w-auto object-contain group-hover:-translate-y-0.5 transition-transform duration-300"
           />
         </Link>
 

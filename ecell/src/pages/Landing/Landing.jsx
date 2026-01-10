@@ -17,6 +17,7 @@ import { StatsGrid } from "../../components/ui/stats-grid";
 import { InitiativesCarousel } from "../../components/ui/initiatives-carousel";
 import { DomainsShowcase } from "../../components/ui/domains-showcase";
 import { TeamShowcase } from "../../components/ui/team-showcase";
+import { fetchTeamMembers } from "../../services/teamService";
 
 const HeroTimer = () => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -71,17 +72,77 @@ const HeroTimer = () => {
   );
 };
 
+// Position quotes for Core Team testimonials
+const POSITION_QUOTES = {
+  'president': "Leading E-Cell has been a journey of innovation and impact. We strive to build an ecosystem where every idea gets a chance to fly.",
+  'vice president': "Our goal is to bridge the gap between technical skills and entrepreneurial mindset. Together, we're shaping the future.",
+  'head': "Leading my domain with passion and purpose. We're building something incredible for the E-Cell community.",
+  'lead': "Driving innovation and mentoring the next generation of entrepreneurs. Every day brings new opportunities.",
+  'syndicate': "Connecting ideas with execution. We're the bridge between vision and reality.",
+  'default': "Proud to be part of E-Cell SRMIST, building the entrepreneurial ecosystem of tomorrow."
+};
+
+const getQuoteForPosition = (position) => {
+  const pos = position?.toLowerCase() || '';
+  if (pos.includes('president') && !pos.includes('vice')) return POSITION_QUOTES['president'];
+  if (pos.includes('vice president')) return POSITION_QUOTES['vice president'];
+  if (pos.includes('head')) return POSITION_QUOTES['head'];
+  if (pos.includes('syndicate')) return POSITION_QUOTES['syndicate'];
+  if (pos.includes('lead')) return POSITION_QUOTES['lead'];
+  return POSITION_QUOTES['default'];
+};
+
 const Landing = () => {
   const [selectedFeature, setSelectedFeature] = useState(null);
+  const [coreTeam, setCoreTeam] = useState([]);
+
+  // Fetch Core Team (President, VP, Heads, Leads)
+  useEffect(() => {
+    const loadCoreTeam = async () => {
+      const allMembers = await fetchTeamMembers();
+
+      // Filter for President, Vice President, Heads, Leads, Syndicates
+      const corePositions = allMembers.filter(m => {
+        const pos = m.position?.toLowerCase() || '';
+        return pos.includes('president') ||
+          pos.includes('head') ||
+          pos.includes('lead') ||
+          pos.includes('syndicate');
+      });
+
+      // Sort: President first, then VP, then Heads, then Leads
+      const sorted = corePositions.sort((a, b) => {
+        const getPriority = (pos) => {
+          const p = pos?.toLowerCase() || '';
+          if (p.includes('president') && !p.includes('vice')) return 1;
+          if (p.includes('vice president')) return 2;
+          if (p.includes('head')) return 3;
+          if (p.includes('syndicate')) return 4;
+          if (p.includes('lead')) return 5;
+          return 6;
+        };
+        return getPriority(a.position) - getPriority(b.position);
+      });
+
+      // Transform to testimonials format
+      const testimonials = sorted.map(member => ({
+        quote: getQuoteForPosition(member.position),
+        name: member.name,
+        designation: member.position,
+        src: member.photo,
+      }));
+
+      setCoreTeam(testimonials);
+    };
+
+    loadCoreTeam();
+  }, []);
 
   // Festive Confetti Effect on Mount - CRAZY MODE
-  // Festive Confetti Effect on Mount - CRAZY MODE
   useEffect(() => {
-    // Check if confetti has already been shown in this session
     const hasShownConfetti = sessionStorage.getItem("hasShownConfetti");
     if (hasShownConfetti) return;
 
-    // Set flag in session storage
     sessionStorage.setItem("hasShownConfetti", "true");
 
     const end = Date.now() + 3 * 1000;
@@ -115,9 +176,7 @@ const Landing = () => {
     }());
   }, []);
 
-
-
-  // Data for Bento Grid - Uniform 2x3 layout
+  // Data for Bento Grid - What We Offer
   const features = [
     {
       Icon: Rocket,
@@ -125,8 +184,6 @@ const Landing = () => {
       description: "We provide resources, mentorship, and workspace to help student startups take flight.",
       href: "/startups",
       cta: "Learn more",
-      background: <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-black to-black opacity-50" />,
-      className: "lg:col-span-1 lg:row-span-1",
     },
     {
       Icon: Users,
@@ -134,8 +191,6 @@ const Landing = () => {
       description: "Connect with industry leaders and alumni who guide you through your entrepreneurial journey.",
       href: "/team",
       cta: "Meet mentors",
-      background: <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-black to-black opacity-50" />,
-      className: "lg:col-span-1 lg:row-span-1",
     },
     {
       Icon: Globe,
@@ -143,8 +198,6 @@ const Landing = () => {
       description: "Join a vast network of 5000+ innovators, investors, and change-makers.",
       href: "/events",
       cta: "Join events",
-      background: <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 via-black to-black opacity-50" />,
-      className: "lg:col-span-1 lg:row-span-1",
     },
     {
       Icon: Award,
@@ -152,8 +205,6 @@ const Landing = () => {
       description: "Win cash prizes and funding through our flagship hackathons and pitch competitions.",
       href: "/events",
       cta: "Compete now",
-      background: <div className="absolute inset-0 bg-gradient-to-br from-green-600/10 via-black to-black opacity-50" />,
-      className: "lg:col-span-1 lg:row-span-1",
     },
     {
       Icon: Zap,
@@ -161,8 +212,6 @@ const Landing = () => {
       description: "Master the skills needed to build and scale successful ventures.",
       href: "/about",
       cta: "Explore skills",
-      background: <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/10 via-black to-black opacity-50" />,
-      className: "lg:col-span-1 lg:row-span-1",
     },
     {
       Icon: TrendingUp,
@@ -170,86 +219,6 @@ const Landing = () => {
       description: "Access seed funding, investor connections, and financial guidance for your venture.",
       href: "/startups",
       cta: "Get funded",
-      background: <div className="absolute inset-0 bg-gradient-to-br from-lime-500/10 via-black to-black opacity-50" />,
-      className: "lg:col-span-1 lg:row-span-1",
-    },
-  ];
-
-  // Data for Radial Orbital Timeline (Domains)
-  const domains = [
-    {
-      id: 1,
-      title: "Technical",
-      date: "Web & App",
-      content: "Building innovative digital solutions through web development, app development, and software engineering.",
-      category: "Technical",
-      icon: Code,
-      relatedIds: [2, 3],
-      status: "completed",
-      energy: 95,
-    },
-    {
-      id: 2,
-      title: "AI/ML",
-      date: "Data Science",
-      content: "Leveraging artificial intelligence and machine learning to solve real-world problems and drive innovation.",
-      category: "Technical",
-      icon: Rocket,
-      relatedIds: [1, 4],
-      status: "in-progress",
-      energy: 85,
-    },
-    {
-      id: 3,
-      title: "Creatives",
-      date: "Design & Media",
-      content: "Creating stunning visual content, graphics, videos, and brand identities that captivate audiences.",
-      category: "Creative",
-      icon: Palette,
-      relatedIds: [1, 4],
-      status: "completed",
-      energy: 90,
-    },
-    {
-      id: 4,
-      title: "Corporate",
-      date: "Business Dev",
-      content: "Building partnerships, securing sponsorships, and driving business growth through strategic relations.",
-      category: "Business",
-      icon: TrendingUp,
-      relatedIds: [2, 3],
-      status: "completed",
-      energy: 88,
-    },
-  ];
-
-
-
-  // Data for Core Team (using AnimatedTestimonials)
-  const coreTeam = [
-    {
-      quote: "Leading E-Cell has been a journey of innovation and impact. We strive to build an ecosystem where every idea gets a chance to fly.",
-      name: "Aryan Sharma",
-      designation: "President",
-      src: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&h=500&fit=crop",
-    },
-    {
-      quote: "Our goal is to bridge the gap between technical skills and entrepreneurial mindset. The projects we've launched this year are proof of that.",
-      name: "Sneha Patel",
-      designation: "Vice President",
-      src: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&h=500&fit=crop",
-    },
-    {
-      quote: "Technology is the backbone of innovation. We've upgraded our entire tech stack to support the next generation of startups.",
-      name: "Rohan Das",
-      designation: "Technical Head",
-      src: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=500&h=500&fit=crop",
-    },
-    {
-      quote: "Design is not just about looks; it's about problem-solving. Our creative team ensures every E-Cell initiative communicates effectively.",
-      name: "Kavya Iyer",
-      designation: "Creatives Head",
-      src: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&h=500&fit=crop",
     },
   ];
 
@@ -333,9 +302,15 @@ const Landing = () => {
             viewport={{ once: true }}
             className="text-5xl font-bold text-white text-center mb-10 font-display"
           >
-            Meet Our <span className="text-green-500">Core Team</span>
+            Meet Our <span className="text-green-500">Board Members</span>
           </motion.h2>
-          <AnimatedTestimonials testimonials={coreTeam} autoplay={true} />
+          {coreTeam.length > 0 ? (
+            <AnimatedTestimonials testimonials={coreTeam} autoplay={true} />
+          ) : (
+            <div className="flex justify-center py-10">
+              <div className="w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
         </div>
       </section>
 

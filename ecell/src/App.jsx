@@ -7,6 +7,7 @@ import Startups from './pages/Startups/Startups'
 import Events from './pages/Events/Events'
 import Contact from './pages/Contact/Contact'
 import UpdatePhoto from './pages/UpdatePhoto/UpdatePhoto'
+import Developers from './pages/Developers/Developers'
 import './App.css'
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/recruitments" element={<Recruitments />} />
         <Route path="/update-photo" element={<UpdatePhoto />} />
+        <Route path="/developers" element={<Developers />} />
       </Routes>
     </Router>
   )
