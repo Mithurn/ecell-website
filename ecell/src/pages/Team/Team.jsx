@@ -38,7 +38,7 @@ const TeamCard = ({ member, variant = "default" }) => {
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
       className={`group bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden 
-        ${sizeClasses[variant]} w-full flex flex-col items-center text-center pt-8 pb-6
+        ${sizeClasses[variant]} w-full flex flex-col items-center text-center pt-8 pb-6 mx-auto
         hover:border-green-500/40 transition-all duration-300`}
     >
       <div className={`relative ${variant === 'large' ? 'w-48 h-48' : variant === 'compact' ? 'w-24 h-24' : 'w-32 h-32'} rounded-full overflow-hidden border-4 border-neutral-800 group-hover:border-green-500/50 transition-colors duration-300 shadow-lg`}>

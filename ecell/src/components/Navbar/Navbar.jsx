@@ -49,12 +49,11 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
         <Link to="/" className="flex items-center gap-2 group">
-          <span className="text-2xl font-bold text-white font-display tracking-tight group-hover:-translate-y-0.5 transition-transform duration-300">
-            e-cell
-          </span>
-          <span className="text-sm font-medium text-green-500 font-display tracking-widest uppercase group-hover:-translate-y-0.5 transition-transform duration-300">
-            SRMIST
-          </span>
+          <img
+            src="/ecell-logo-white.png"
+            alt="E-Cell SRMIST"
+            className="h-12 w-auto object-contain group-hover:-translate-y-0.5 transition-transform duration-300"
+          />
         </Link>
 
         {/* Desktop Navigation */}
