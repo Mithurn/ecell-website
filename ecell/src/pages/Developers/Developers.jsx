@@ -114,16 +114,17 @@ const DevCard = ({ dev, index }) => {
     return (
         <motion.div
             ref={cardRef}
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ delay: index * 0.15, duration: 0.5 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ delay: index * 0.1, duration: 0.4, ease: "easeOut" }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             style={{
                 rotateX,
                 rotateY,
                 transformStyle: "preserve-3d",
+                willChange: "opacity, transform",
             }}
             className="group relative bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 rounded-2xl p-8 overflow-hidden hover:border-green-500/50 transition-all duration-500"
         >

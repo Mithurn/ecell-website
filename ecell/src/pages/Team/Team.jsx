@@ -20,7 +20,7 @@ const facultyData = {
 const BOARD_MEMBER_POSITIONS = ['founder', 'president', 'vice president', 'secretary', 'treasurer', 'core'];
 const LEADERSHIP_POSITIONS = ['head', 'lead', 'syndicate'];
 
-// Reusable card component with size variants
+// Reusable card component with size variants - Optimized for scroll performance
 const TeamCard = ({ member, variant = "default", className = "", onClick }) => {
   const fallbackPhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&size=400&background=22c55e&color=000&bold=true`;
 
@@ -32,15 +32,15 @@ const TeamCard = ({ member, variant = "default", className = "", onClick }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      whileHover={{ y: -5 }}
-      transition={{ duration: 0.3 }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
       onClick={onClick}
       className={`group bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden cursor-pointer
         ${sizeClasses[variant]} w-full flex flex-col items-center text-center pt-8 pb-6 mx-auto ${className}
-        hover:border-green-500/40 transition-all duration-300`}
+        hover:border-green-500/40 hover:-translate-y-1 transition-all duration-300`}
+      style={{ willChange: 'opacity, transform' }}
     >
       <div className={`relative ${variant === 'large' ? 'w-48 h-48' : variant === 'compact' ? 'w-24 h-24' : 'w-32 h-32'} rounded-full overflow-hidden border-4 border-neutral-800 group-hover:border-green-500/50 transition-colors duration-300 shadow-lg`}>
         <img
@@ -48,6 +48,7 @@ const TeamCard = ({ member, variant = "default", className = "", onClick }) => {
           alt={member.name}
           className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
           onError={(e) => { e.target.src = fallbackPhoto; }}
+          loading="lazy"
         />
       </div>
       <div className="px-5 pt-4 w-full flex flex-col items-center">
@@ -78,9 +79,10 @@ const TeamCard = ({ member, variant = "default", className = "", onClick }) => {
       </div>
     </motion.div>
   );
+
 };
 
-// Compact member card for members section
+// Compact member card for members section - Optimized for scroll performance
 const MemberCard = ({ member, onClick }) => {
   const fallbackPhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&size=100&background=22c55e&color=000&bold=true`;
 
@@ -88,10 +90,11 @@ const MemberCard = ({ member, onClick }) => {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
-      whileHover={{ y: -3 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
       onClick={onClick}
-      className="group text-center p-4 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-green-500/30 transition-all cursor-pointer"
+      className="group text-center p-4 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-green-500/30 hover:-translate-y-1 transition-all cursor-pointer"
+      style={{ willChange: 'opacity, transform' }}
     >
       <div className="w-20 h-20 mx-auto mb-3 rounded-full overflow-hidden border-2 border-neutral-700 group-hover:border-green-500/50 transition-colors">
         <img
@@ -99,6 +102,7 @@ const MemberCard = ({ member, onClick }) => {
           alt={member.name}
           className="w-full h-full object-cover"
           onError={(e) => { e.target.src = fallbackPhoto; }}
+          loading="lazy"
         />
       </div>
       <p className="text-white font-medium text-sm mb-1">{member.name}</p>
@@ -123,6 +127,7 @@ const MemberCard = ({ member, onClick }) => {
     </motion.div>
   );
 };
+
 
 // Section header component
 const SectionHeader = ({ id, title, subtitle }) => (
