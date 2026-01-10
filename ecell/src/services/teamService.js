@@ -4,9 +4,56 @@ const API_KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY;
 const SHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
 const SHEET_NAME = 'Form Responses 1';
 
-// Fetch team members from Google Sheets + Supabase photos
-export const fetchTeamMembers = async () => {
+// Cache configuration
+const CACHE_KEY = 'ecell_team_members';
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+// Get cached data if valid
+const getCachedData = () => {
     try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (!cached) return null;
+
+        const { data, timestamp } = JSON.parse(cached);
+        const isExpired = Date.now() - timestamp > CACHE_TTL;
+
+        if (isExpired) {
+            sessionStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+
+        return data;
+    } catch {
+        return null;
+    }
+};
+
+// Save data to cache
+const setCachedData = (data) => {
+    try {
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+            data,
+            timestamp: Date.now()
+        }));
+    } catch (error) {
+        console.warn('Failed to cache team data:', error);
+    }
+};
+
+// Fetch team members from Google Sheets + Supabase photos (with caching)
+export const fetchTeamMembers = async (forceRefresh = false) => {
+    try {
+        // Check cache first (unless force refresh)
+        if (!forceRefresh) {
+            const cached = getCachedData();
+            if (cached) {
+                console.log('📦 Using cached team data');
+                return cached;
+            }
+        }
+
+        console.log('🔄 Fetching fresh team data...');
+
         // Fetch photos from Supabase (uploaded by members)
         const memberPhotos = await getAllMemberPhotos();
 
@@ -56,12 +103,16 @@ export const fetchTeamMembers = async () => {
             };
         }).filter(member => member.name);
 
+        // Cache the results
+        setCachedData(members);
+
         return members;
     } catch (error) {
         console.error('Error fetching team members:', error);
         return [];
     }
 };
+
 
 // Get members by domain
 export const getTeamByDomain = async (domain) => {
