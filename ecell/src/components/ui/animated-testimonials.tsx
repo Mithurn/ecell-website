@@ -90,13 +90,14 @@ export const AnimatedTestimonials = ({
   };
 
   return (
-    <div className={cn("max-w-sm md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-20", className)}>
+    <div className={cn("max-w-sm md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-20 relative z-10", className)}>
       <div className="relative grid grid-cols-1 md:grid-cols-2 gap-20">
         {/* Image Stack */}
         <div
           onTouchStart={isMobile ? handleTouchStart : undefined}
           onTouchEnd={isMobile ? handleTouchEnd : undefined}
           onTouchMove={isMobile ? handleTouchMove : undefined}
+          className="overflow-visible"
         >
           <div className="relative h-80 w-full">
             <AnimatePresence>
@@ -118,7 +119,7 @@ export const AnimatedTestimonials = ({
                     z: isActive(index) ? 0 : -100,
                     rotate: isActive(index) ? 0 : getRotation(index),
                     zIndex: isActive(index)
-                      ? 999
+                      ? 50
                       : testimonials.length + 2 - index,
                     y: isActive(index) ? [0, -80, 0] : 0,
                   }}
@@ -148,12 +149,6 @@ export const AnimatedTestimonials = ({
             </AnimatePresence>
           </div>
 
-          {/* Mobile hint */}
-          {isMobile && (
-            <p className="text-center text-neutral-600 text-xs mt-4">
-              Swipe to browse • Long press to pause
-            </p>
-          )}
         </div>
 
         {/* Content */}
