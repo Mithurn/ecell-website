@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
@@ -221,6 +221,12 @@ const Developers = () => {
         loadDevs();
     }, []);
 
+    // Detect mobile for performance optimization
+    const isMobile = useMemo(() => {
+        if (typeof window === 'undefined') return false;
+        return window.innerWidth < 768;
+    }, []);
+
     if (loading) return <div className="min-h-screen bg-black" />;
 
     return (
@@ -228,16 +234,20 @@ const Developers = () => {
             <Navbar />
 
             <div className="relative pt-24 pb-16 overflow-hidden">
-                {/* Background Decoration */}
-                <div className="absolute inset-0 w-full h-full opacity-20">
+                {/* Background Decoration - Fixed position with GPU acceleration */}
+                <div
+                    className="fixed inset-0 w-full h-full opacity-20 pointer-events-none"
+                    style={{ transform: 'translate3d(0,0,0)', willChange: 'transform' }}
+                >
                     <Squares
-                        speed={0.5}
-                        squareSize={40}
+                        speed={isMobile ? 0.3 : 0.5}
+                        squareSize={isMobile ? 50 : 40}
                         direction='diagonal'
                         borderColor='#22c55e'
                         hoverFillColor='#14532d'
                     />
                 </div>
+
 
                 <div className="container mx-auto px-4 relative z-10">
                     {/* Header */}

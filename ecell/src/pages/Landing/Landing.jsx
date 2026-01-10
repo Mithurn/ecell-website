@@ -124,13 +124,28 @@ const Landing = () => {
         return getPriority(a.position) - getPriority(b.position);
       });
 
-      // Transform to testimonials format
-      const testimonials = sorted.map(member => ({
-        quote: getQuoteForPosition(member.position),
-        name: member.name,
-        designation: member.position,
-        src: member.photo,
-      }));
+      // Transform to testimonials format with proper designation
+      const testimonials = sorted.map(member => {
+        // Format designation as "Domain Position" e.g., "Technical Lead"
+        let designation = member.position;
+        if (member.domain && !member.position?.toLowerCase().includes('president')) {
+          const positionOnly = member.position?.replace(/head|lead|syndicate/gi, '').trim();
+          if (member.position?.toLowerCase().includes('head')) {
+            designation = `${member.domain} Head`;
+          } else if (member.position?.toLowerCase().includes('lead')) {
+            designation = `${member.domain} Lead`;
+          } else if (member.position?.toLowerCase().includes('syndicate')) {
+            designation = `${member.domain} Syndicate`;
+          }
+        }
+
+        return {
+          quote: getQuoteForPosition(member.position),
+          name: member.name,
+          designation: designation,
+          src: member.photo,
+        };
+      });
 
       setCoreTeam(testimonials);
     };
@@ -302,7 +317,7 @@ const Landing = () => {
             viewport={{ once: true }}
             className="text-5xl font-bold text-white text-center mb-10 font-display"
           >
-            Meet Our <span className="text-green-500">Board Members</span>
+            Meet Our <span className="text-green-500">Core Team</span>
           </motion.h2>
           {coreTeam.length > 0 ? (
             <AnimatedTestimonials testimonials={coreTeam} autoplay={true} />

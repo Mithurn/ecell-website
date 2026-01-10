@@ -477,15 +477,15 @@ const Team = () => {
         {/* Faculty Section */}
         <section className="mb-20">
           <SectionHeader id="faculty" title="Faculty" subtitle="Incharge" />
-          <div className="flex justify-start">
-            <TeamCard member={facultyData} variant="large" className="md:mx-0" onClick={() => setSelectedMember(facultyData)} />
+          <div className="flex justify-center">
+            <TeamCard member={facultyData} variant="default" className="md:mx-0" onClick={() => setSelectedMember(facultyData)} />
           </div>
         </section>
 
         {/* Core Team Section */}
         <section className="mb-20">
           <SectionHeader id="board" title="Board" subtitle="Members" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex flex-wrap justify-center gap-6">
             {getBoardMembers().map((member, idx) => (
               <TeamCard key={idx} member={member} variant="default" onClick={() => setSelectedMember(member)} />
             ))}
