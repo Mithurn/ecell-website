@@ -1,322 +1,370 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Github, Linkedin, Mail, Instagram } from 'lucide-react';
-import { MemberGrid } from '../../components/ui/member-grid';
-import { AnimatedTeamSection } from '../../components/ui/team-section';
-import { Button } from '../../components/ui/button';
+import { Github, Linkedin, Instagram, Loader2, ChevronRight, Camera } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { fetchTeamMembers, getDomains } from '../../services/teamService';
 
-const TeamMemberCard = ({ member, size = "md" }) => {
-  const isLarge = size === "lg";
+// Faculty Incharge data - easy to update photos later
+const facultyData = {
+  name: "Dr. P. Supriya",
+  role: "Faculty Incharge",
+  image: "", // Add photo URL here when available
+  linkedin: "",
+  email: "",
+  instagram: ""
+};
+
+// Core Team positions to filter from sheets
+const CORE_TEAM_POSITIONS = ['founder', 'president', 'vice president', 'secretary', 'treasurer', 'core'];
+const HEAD_POSITIONS = ['head', 'lead'];
+
+// Reusable card component with size variants
+const TeamCard = ({ member, variant = "default" }) => {
+  const fallbackPhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&size=400&background=22c55e&color=000&bold=true`;
+
+  const sizeClasses = {
+    large: "max-w-sm",
+    default: "max-w-xs",
+    compact: "max-w-[200px]"
+  };
+
   return (
     <motion.div
-      whileHover={{ y: -10, scale: 1.02 }}
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className={`relative group bg-neutral-900 border border-green-500/20 rounded-2xl overflow-hidden 
-        ${isLarge ? 'max-w-md w-full' : 'w-full'}
-        hover:border-green-500/60 transition-all duration-300
-        shadow-[0_0_15px_rgba(34,197,94,0.05)] hover:shadow-[0_0_30px_rgba(34,197,94,0.2)]`}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      whileHover={{ y: -5 }}
+      transition={{ duration: 0.3 }}
+      className={`group bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden 
+        ${sizeClasses[variant]} w-full
+        hover:border-green-500/40 transition-all duration-300`}
     >
-      {/* Neon glow overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-5" />
-
-      <div className={`relative ${isLarge ? 'h-96' : 'h-80'} overflow-hidden`}>
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10 opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
+      <div className={`relative ${variant === 'large' ? 'h-72' : variant === 'compact' ? 'h-48' : 'h-56'} overflow-hidden`}>
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10 opacity-70" />
         <img
-          src={member.image}
+          src={member.image || member.photo || fallbackPhoto}
           alt={member.name}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => { e.target.src = fallbackPhoto; }}
         />
       </div>
-      <div className="absolute bottom-0 left-0 right-0 p-6 z-20 bg-gradient-to-t from-black via-black/90 to-transparent pt-20">
-        <h3 className={`${isLarge ? 'text-3xl' : 'text-xl'} font-bold text-white mb-1 font-display`}>{member.name}</h3>
-        <p className="text-green-400 font-medium mb-4">{member.role}</p>
-        <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-          <a href="#" className="p-2 rounded-full bg-white/10 text-white hover:bg-green-500 hover:text-black transition-all duration-200">
-            <Linkedin size={18} />
-          </a>
-          <a href="#" className="p-2 rounded-full bg-white/10 text-white hover:bg-green-500 hover:text-black transition-all duration-200">
-            <Mail size={18} />
-          </a>
-          <a href="#" className="p-2 rounded-full bg-white/10 text-white hover:bg-green-500 hover:text-black transition-all duration-200">
-            <Instagram size={18} />
-          </a>
+      <div className="p-5">
+        <h3 className={`font-bold text-white mb-1 ${variant === 'large' ? 'text-xl' : 'text-lg'}`}>
+          {member.name}
+        </h3>
+        <p className="text-green-400 text-sm mb-3">{member.role || member.position}</p>
+        <div className="flex gap-2">
+          {member.linkedin && (
+            <a href={member.linkedin} target="_blank" rel="noopener noreferrer"
+              className="p-2 rounded-lg bg-neutral-800 text-neutral-400 hover:bg-green-500 hover:text-black transition-all">
+              <Linkedin size={16} />
+            </a>
+          )}
+          {member.instagram && (
+            <a href={member.instagram} target="_blank" rel="noopener noreferrer"
+              className="p-2 rounded-lg bg-neutral-800 text-neutral-400 hover:bg-green-500 hover:text-black transition-all">
+              <Instagram size={16} />
+            </a>
+          )}
+          {member.github && member.github !== 'NA' && (
+            <a href={member.github} target="_blank" rel="noopener noreferrer"
+              className="p-2 rounded-lg bg-neutral-800 text-neutral-400 hover:bg-green-500 hover:text-black transition-all">
+              <Github size={16} />
+            </a>
+          )}
         </div>
       </div>
     </motion.div>
   );
 };
 
-const DomainSection = ({ domain }) => {
+// Compact member card for members section
+const MemberCard = ({ member }) => {
+  const fallbackPhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&size=100&background=22c55e&color=000&bold=true`;
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="mb-24"
+      initial={{ opacity: 0, scale: 0.95 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      whileHover={{ y: -3 }}
+      className="group text-center p-4 rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-green-500/30 transition-all"
     >
-      <h3 className="text-4xl font-bold text-white mb-12 border-l-4 border-green-500 pl-6 font-display">
-        {domain.name} <span className="text-green-500">Domain</span>
-      </h3>
-
-      {/* Heads */}
-      <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto">
-        <TeamMemberCard member={domain.head} />
-        {domain.associate && <TeamMemberCard member={domain.associate} />}
+      <div className="w-20 h-20 mx-auto mb-3 rounded-full overflow-hidden border-2 border-neutral-700 group-hover:border-green-500/50 transition-colors">
+        <img
+          src={member.photo || fallbackPhoto}
+          alt={member.name}
+          className="w-full h-full object-cover"
+          onError={(e) => { e.target.src = fallbackPhoto; }}
+        />
       </div>
-
-      {/* Members */}
-      <div className="bg-neutral-900/50 border border-green-500/10 rounded-2xl p-8 backdrop-blur-sm">
-        <h4 className="text-xl font-bold text-green-400 mb-6 font-display text-center">Team Members</h4>
-        <MemberGrid members={domain.members} />
+      <p className="text-white font-medium text-sm mb-1">{member.name}</p>
+      <p className="text-neutral-500 text-xs">{member.position}</p>
+      <div className="flex justify-center gap-2 mt-3">
+        {member.linkedin && (
+          <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-md bg-neutral-800 text-neutral-400 hover:bg-green-500 hover:text-black transition-all">
+            <Linkedin size={14} />
+          </a>
+        )}
+        {member.instagram && (
+          <a href={member.instagram} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-md bg-neutral-800 text-neutral-400 hover:bg-green-500 hover:text-black transition-all">
+            <Instagram size={14} />
+          </a>
+        )}
+        {member.github && member.github !== 'NA' && (
+          <a href={member.github} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-md bg-neutral-800 text-neutral-400 hover:bg-green-500 hover:text-black transition-all">
+            <Github size={14} />
+          </a>
+        )}
       </div>
     </motion.div>
   );
 };
 
+// Section header component
+const SectionHeader = ({ id, title, subtitle }) => (
+  <motion.div
+    id={id}
+    initial={{ opacity: 0, x: -20 }}
+    whileInView={{ opacity: 1, x: 0 }}
+    viewport={{ once: true }}
+    className="mb-10 scroll-mt-32"
+  >
+    <h2 className="text-3xl font-bold text-white font-display">
+      {title} <span className="text-green-500">{subtitle}</span>
+    </h2>
+    <div className="w-16 h-1 bg-green-500 mt-3 rounded-full" />
+  </motion.div>
+);
+
 const Team = () => {
-  const [activeTab, setActiveTab] = useState("faculty"); // 'faculty', 'core', 'domains'
-  const [activeDomain, setActiveDomain] = useState("Technical");
+  const [allMembers, setAllMembers] = useState([]);
+  const [domains, setDomains] = useState([]);
+  const [activeDomain, setActiveDomain] = useState("");
+  const [activeSection, setActiveSection] = useState("faculty");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const faculty = {
-    name: "Dr. P. Supriya",
-    role: "Faculty Incharge",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&h=500&fit=crop"
-  };
+  // Scroll spy effect - improved detection
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ['faculty', 'core', 'domains'];
+      const scrollPosition = window.scrollY + window.innerHeight / 3;
 
-  const founder = {
-    name: "Siddharth Gupta",
-    role: "Founder",
-    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&h=500&fit=crop"
-  };
-
-  const coreTeam = [
-    {
-      name: "Aryan Sharma",
-      role: "President",
-      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&h=500&fit=crop"
-    },
-    {
-      name: "Sneha Patel",
-      role: "Vice President",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&h=500&fit=crop"
-    }
-  ];
-
-
-
-  const domains = [
-    {
-      name: "Technical",
-      head: { name: "Rohan Das", role: "Technical Head", image: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=500&h=500&fit=crop" },
-      associate: { name: "Amit Verma", role: "Associate Lead", image: "https://images.unsplash.com/photo-1600486913747-55e5470d6f40?w=500&h=500&fit=crop" },
-      members: [
-        { name: "Rahul Kumar", role: "Full Stack Dev" },
-        { name: "Priya Singh", role: "Frontend Dev" },
-        { name: "Aditya Raj", role: "UI/UX Designer" },
-        { name: "Meera Nair", role: "Backend Dev" },
-        { name: "Karthik S", role: "DevOps Engineer" },
-        { name: "Neha Gupta", role: "App Developer" },
-        { name: "Vikram Malhotra", role: "Web Developer" },
-        { name: "Sarah Jenkins", role: "QA Engineer" },
-        { name: "David Chen", role: "System Admin" }
-      ]
-    },
-    {
-      name: "Creatives",
-      head: { name: "Kavya Iyer", role: "Creative Head", image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&h=500&fit=crop" },
-      associate: { name: "Riya Sharma", role: "Associate Lead", image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&h=500&fit=crop" },
-      members: [
-        { name: "Ananya Desai", role: "Graphic Designer" },
-        { name: "Arjun Reddy", role: "Video Editor" },
-        { name: "Sofia Khan", role: "Illustrator" },
-        { name: "Lucas Wright", role: "Content Creator" },
-        { name: "Isabella Martinez", role: "Animator" },
-        { name: "Oliver Wilson", role: "Photographer" },
-        { name: "Emma Thompson", role: "Copywriter" }
-      ]
-    },
-    {
-      name: "Corporate",
-      head: { name: "Vikram Malhotra", role: "Corporate Head", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&h=500&fit=crop" },
-      associate: { name: "Ishaan Kapoor", role: "Associate Lead", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=500&h=500&fit=crop" },
-      members: [
-        { name: "Zainab Ali", role: "PR Manager" },
-        { name: "Ryan Cooper", role: "Sponsorship Lead" },
-        { name: "Nathan Drake", role: "Corporate Relations" },
-        { name: "Elena Fisher", role: "Marketing Strategist" },
-        { name: "Chloe Frazer", role: "Communications" },
-        { name: "Samuel Drake", role: "Operations" }
-      ]
-    },
-    {
-      name: "Events",
-      head: { name: "Anjali Gupta", role: "Events Head", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&h=500&fit=crop" },
-      associate: { name: "Kabir Singh", role: "Associate Lead", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=500&fit=crop" },
-      members: [
-        { name: "Tara Sutaria", role: "Event Coordinator" },
-        { name: "Varun Dhawan", role: "Logistics Manager" },
-        { name: "Kiara Advani", role: "Hospitality Lead" },
-        { name: "Sidharth Malhotra", role: "Operations" },
-        { name: "Alia Bhatt", role: "Stage Management" },
-        { name: "Ranbir Kapoor", role: "Technical Support" }
-      ]
-    }
-  ];
-
-  // Hero Section Members (mix of leaders)
-  const heroMembers = [
-    { name: faculty.name, image: faculty.image },
-    { name: founder.name, image: founder.image },
-    ...coreTeam.map(m => ({ name: m.name, image: m.image })),
-    { name: "Rohan Das", image: domains[0].head.image },
-    { name: "Kavya Iyer", image: domains[1].head.image },
-    { name: "Vikram Malhotra", image: domains[2].head.image },
-  ];
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    // Optional: Scroll to content section if needed
-    if (tab !== 'domains') {
-      const contentElement = document.getElementById('team-content');
-      if (contentElement) {
-        contentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Check from bottom to top for better accuracy
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const element = document.getElementById(sections[i]);
+        if (element) {
+          const offsetTop = element.offsetTop;
+          if (scrollPosition >= offsetTop) {
+            if (activeSection !== sections[i]) {
+              setActiveSection(sections[i]);
+            }
+            break;
+          }
+        }
       }
-    }
-  };
+    };
 
-  const handleDomainChange = (domainName) => {
-    setActiveDomain(domainName);
-  };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial check
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [activeSection]);
+
+  useEffect(() => {
+    const loadTeamData = async () => {
+      try {
+        setLoading(true);
+        const members = await fetchTeamMembers();
+        const domainList = await getDomains();
+        setAllMembers(members);
+        setDomains(domainList);
+        // Set first domain as default
+        if (domainList.length > 0) {
+          setActiveDomain(domainList[0]);
+        }
+      } catch (err) {
+        console.error('Failed to load team data:', err);
+        setError('Failed to load team members');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadTeamData();
+  }, []);
+
+  // Filter helpers
+  const getCoreTeam = () => allMembers.filter(m =>
+    CORE_TEAM_POSITIONS.some(pos => m.position?.toLowerCase().includes(pos))
+  );
+
+  const getHeadsByDomain = (domain) => allMembers.filter(m =>
+    m.domain === domain && HEAD_POSITIONS.some(pos => m.position?.toLowerCase().includes(pos))
+  );
+
+  const getMembersByDomain = (domain) => allMembers.filter(m =>
+    m.domain === domain && m.position?.toLowerCase() === 'member'
+  );
+
+  // Navigation sections
+  const navSections = [
+    { id: 'faculty', label: 'Faculty' },
+    { id: 'core', label: 'Core Team' },
+    { id: 'domains', label: 'Domains' }
+  ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <Navbar />
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-green-500 animate-spin mx-auto mb-4" />
+          <p className="text-neutral-400">Loading team members...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">
       <Navbar />
 
-      {/* Hero Section */}
-      <AnimatedTeamSection
-        title="We are E-Cell SRMIST"
-        description="A collective of innovators, leaders, and creators driving the future of entrepreneurship."
-        members={heroMembers}
-        className="min-h-[70vh] flex items-center justify-center bg-black py-20"
-      />
+      {/* Sticky Footer Navigation - Centered Pill with Sliding Indicator */}
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <div className="flex items-center gap-1 bg-neutral-900/95 backdrop-blur-xl border border-neutral-800 rounded-full px-2 py-2 shadow-2xl">
+          {navSections.map((section) => (
+            <button
+              key={section.id}
+              onClick={() => {
+                document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth' });
+                setActiveSection(section.id);
+              }}
+              className="relative px-5 py-2.5 text-sm font-medium rounded-full whitespace-nowrap"
+            >
+              {/* Animated background for active state */}
+              {activeSection === section.id && (
+                <motion.div
+                  layoutId="activeNavBg"
+                  className="absolute inset-0 bg-green-500 rounded-full shadow-[0_0_20px_rgba(34,197,94,0.4)]"
+                  transition={{
+                    type: "spring",
+                    stiffness: 500,
+                    damping: 35,
+                  }}
+                />
+              )}
+              <span className={`relative z-10 transition-colors duration-150 ${activeSection === section.id ? 'text-black' : 'text-neutral-400 hover:text-white'
+                }`}>
+                {section.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </nav>
 
-      {/* Main Filter Tabs */}
-      <div className="sticky top-20 z-30 bg-black/80 backdrop-blur-md border-y border-green-500/20 py-4 mb-8">
-        <div className="container mx-auto px-4 flex flex-col items-center gap-4">
-          <div className="flex flex-wrap justify-center gap-4">
-            {[
-              { id: 'faculty', label: 'Faculty' },
-              { id: 'core', label: 'Core Team' },
-              { id: 'domains', label: 'Domains' },
-            ].map((tab) => (
-              <Button
-                key={tab.id}
-                onClick={() => handleTabChange(tab.id)}
-                variant={activeTab === tab.id ? 'default' : 'outline'}
-                className={`rounded-full px-6 py-2 border-green-500/50 hover:bg-green-500 hover:text-black transition-all ${activeTab === tab.id
-                  ? 'bg-green-500 text-black font-bold shadow-[0_0_20px_rgba(34,197,94,0.4)]'
-                  : 'bg-transparent text-white'
-                  }`}
-              >
-                {tab.label}
-              </Button>
+      {/* Main Content */}
+      <div className="container mx-auto px-4 pt-28 pb-32">
+
+        {/* Faculty Section */}
+        <section className="mb-20">
+          <SectionHeader id="faculty" title="Faculty" subtitle="Incharge" />
+          <div className="flex justify-center lg:justify-start">
+            <TeamCard member={facultyData} variant="large" />
+          </div>
+        </section>
+
+        {/* Core Team Section */}
+        <section className="mb-20">
+          <SectionHeader id="core" title="Core" subtitle="Team" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {getCoreTeam().map((member, idx) => (
+              <TeamCard key={idx} member={member} variant="default" />
             ))}
           </div>
+          {getCoreTeam().length === 0 && (
+            <p className="text-neutral-500 text-center py-8">
+              Add members with positions like "Founder", "President", etc. in the Google Sheet.
+            </p>
+          )}
+        </section>
 
-          {/* Secondary Domain Filter - Only visible when Domains is active */}
-          <AnimatePresence>
-            {activeTab === 'domains' && (
+        {/* Domains Section with Inline Tabs */}
+        <section className="mb-20" id="domains">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="mb-10 scroll-mt-32"
+          >
+            {/* Domain Tabs Inline */}
+            <div className="flex flex-wrap items-center gap-6">
+              {domains.map((domain, idx) => (
+                <button
+                  key={domain}
+                  onClick={() => setActiveDomain(domain)}
+                  className={`text-2xl md:text-3xl font-bold font-display transition-all pb-2 border-b-2 ${activeDomain === domain
+                    ? 'text-white border-green-500'
+                    : 'text-neutral-600 hover:text-neutral-400 border-transparent'
+                    }`}
+                >
+                  {domain}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Active Domain Content */}
+          <AnimatePresence mode="wait">
+            {activeDomain && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="flex flex-wrap justify-center gap-3 overflow-hidden"
+                key={activeDomain}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
               >
-                {domains.map((domain) => (
-                  <Button
-                    key={domain.name}
-                    onClick={() => handleDomainChange(domain.name)}
-                    variant="ghost"
-                    size="sm"
-                    className={`rounded-full px-4 border border-green-500/30 ${activeDomain === domain.name
-                      ? 'bg-green-500/20 text-green-400 border-green-500'
-                      : 'text-neutral-400 hover:text-white hover:bg-white/5'
-                      }`}
-                  >
-                    {domain.name}
-                  </Button>
-                ))}
+                {/* Domain Heads */}
+                {getHeadsByDomain(activeDomain).length > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+                    {getHeadsByDomain(activeDomain).map((member, idx) => (
+                      <TeamCard key={idx} member={member} variant="default" />
+                    ))}
+                  </div>
+                )}
+
+                {/* Domain Members */}
+                {getMembersByDomain(activeDomain).length > 0 && (
+                  <div>
+                    <h4 className="text-lg font-medium text-neutral-400 mb-4">Team Members</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                      {getMembersByDomain(activeDomain).map((member, idx) => (
+                        <MemberCard key={idx} member={member} />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </section>
+
+        {error && (
+          <div className="text-center text-red-400 py-20">
+            <p>{error}</p>
+          </div>
+        )}
       </div>
 
-      <div id="team-content" className="container mx-auto px-4 pb-32 min-h-[60vh]">
-        <AnimatePresence mode="wait">
-          {/* Faculty Section */}
-          {(activeTab === 'faculty') && (
-            <motion.section
-              key="faculty"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="mb-32 flex flex-col items-center"
-            >
-              <h2 className="text-3xl font-bold mb-12 text-center font-['Space_Grotesk']">
-                Faculty <span className="text-green-500">Incharge</span>
-              </h2>
-              <TeamMemberCard member={faculty} size="lg" />
-            </motion.section>
-          )}
-
-          {/* Core Team Section */}
-          {(activeTab === 'core') && (
-            <motion.section
-              key="core"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="mb-32"
-            >
-              <h2 className="text-3xl font-bold mb-12 text-center font-['Space_Grotesk']">
-                <span className="text-green-500">Core</span> Team
-              </h2>
-
-              <div className="flex justify-center mb-16">
-                <div className="w-full max-w-md">
-                  <TeamMemberCard member={founder} size="lg" />
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                {coreTeam.map((member, index) => (
-                  <TeamMemberCard key={index} member={member} />
-                ))}
-              </div>
-            </motion.section>
-          )}
-
-          {/* Domains Section - Shows ONLY the active domain */}
-          {(activeTab === 'domains') && (
-            <motion.section
-              key="domains"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              {domains
-                .filter(d => d.name === activeDomain)
-                .map((domain, index) => (
-                  <DomainSection key={index} domain={domain} />
-                ))}
-            </motion.section>
-          )}
-        </AnimatePresence>
-      </div>
+      {/* Floating Upload Photo Button */}
+      <Link
+        to="/update-photo"
+        className="fixed bottom-6 right-6 flex items-center gap-2 px-5 py-3 bg-green-500 text-black font-bold rounded-full shadow-lg hover:bg-green-400 transition-all hover:scale-105 z-50"
+      >
+        <Camera className="w-5 h-5" />
+        <span className="hidden sm:inline">Update Photo</span>
+      </Link>
 
       <Footer />
     </div>
